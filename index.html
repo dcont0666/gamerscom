@@ -1451,7 +1451,7 @@
         <div class="login-title">BIENVENIDO</div>
         <div class="input-group">
           <label>Usuario o Email</label>
-          <input type="text" id="loginUser" placeholder="admin / player123" value="">
+          <input type="text" id="loginUser" placeholder="Usuario o email" value="">
         </div>
         <div class="input-group">
           <label>Contraseña</label>
@@ -1461,12 +1461,7 @@
         <div class="login-divider">o</div>
         <button class="btn-secondary" onclick="showToast('🎮 Registro próximamente!')">Crear cuenta nueva</button>
       </div>
-      <div style="margin-top:16px; text-align:center;">
-        <p style="font-size:0.75rem; color:var(--text-muted); line-height:1.6;">
-          💡 <strong style="color:var(--text-secondary);">Admin:</strong> usuario <code style="color:var(--accent);">admin</code> / pass <code style="color:var(--accent);">admin123</code><br>
-          👤 <strong style="color:var(--text-secondary);">Usuario:</strong> cualquier otro dato
-        </p>
-      </div>
+
     </div>
 
     <!-- ======= MAIN SCREEN ======= -->
@@ -2638,6 +2633,10 @@
     // PWA Service Worker
     if ('serviceWorker' in navigator) {
       window.addEventListener('load', () => {
+        navigator.serviceWorker.getRegistrations().then(regs => {
+          regs.forEach(reg => reg.unregister());
+        });
+        caches.keys().then(keys => keys.forEach(key => caches.delete(key)));
         navigator.serviceWorker.register('./sw.js').catch(() => {});
       });
     }
