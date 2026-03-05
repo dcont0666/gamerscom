@@ -1,0 +1,3176 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <link rel="manifest" href="./manifest.json">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+  <meta name="apple-mobile-web-app-title" content="GamersCom">
+  <meta name="mobile-web-app-capable" content="yes">
+  <meta name="theme-color" content="#00f5a0">
+  <link rel="apple-touch-icon" href="./icon-192.png">
+  <link rel="icon" type="image/png" sizes="192x192" href="./icon-192.png">
+
+<title>GamersCom</title>
+<link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400;700;900&family=Rajdhani:wght@300;400;600;700&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --bg-deep: #0a0b0f;
+    --bg-dark: #0f1117;
+    --bg-mid: #151821;
+    --bg-panel: #1a1f2e;
+    --bg-card: #1e2536;
+    --bg-hover: #252d42;
+    --accent: #00f5a0;
+    --accent2: #00d4ff;
+    --accent3: #ff6b35;
+    --accent4: #a855f7;
+    --danger: #ff4757;
+    --text-primary: #e8eaf0;
+    --text-secondary: #8892a4;
+    --text-muted: #4a5568;
+    --border: #2a3347;
+    --glow: 0 0 20px rgba(0,245,160,0.3);
+    --glow2: 0 0 20px rgba(0,212,255,0.3);
+  }
+
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+
+  body {
+    font-family: 'Rajdhani', sans-serif;
+    background: var(--bg-deep);
+    color: var(--text-primary);
+    min-height: 100vh;
+    height: 100%;
+    overflow-x: hidden;
+    overflow-y: auto;
+    display: flex;
+    flex-direction: column;
+  }
+
+  /* SPLASH SCREEN */
+  #splash {
+    position: fixed; inset: 0; z-index: 1000;
+    background: var(--bg-deep);
+    display: flex; flex-direction: column;
+    align-items: center; justify-content: center;
+    animation: splashOut 0.6s ease 2.5s forwards;
+  }
+
+  .splash-logo {
+    font-family: 'Orbitron', monospace;
+    font-size: 2.8rem;
+    font-weight: 900;
+    background: linear-gradient(135deg, var(--accent), var(--accent2));
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    letter-spacing: 4px;
+    animation: logoPulse 1s ease-in-out infinite alternate;
+  }
+
+  .splash-tagline {
+    color: var(--text-secondary);
+    font-size: 1rem;
+    letter-spacing: 6px;
+    text-transform: uppercase;
+    margin-top: 12px;
+    animation: fadeUp 0.8s ease 0.5s both;
+  }
+
+  .splash-bar {
+    width: 200px; height: 3px;
+    background: var(--border);
+    border-radius: 2px;
+    margin-top: 40px;
+    overflow: hidden;
+  }
+
+  .splash-bar-fill {
+    height: 100%;
+    background: linear-gradient(90deg, var(--accent), var(--accent2));
+    border-radius: 2px;
+    animation: loadBar 2s ease forwards;
+  }
+
+  @keyframes loadBar { from { width: 0 } to { width: 100% } }
+  @keyframes logoPulse { from { filter: drop-shadow(0 0 10px rgba(0,245,160,0.5)); } to { filter: drop-shadow(0 0 30px rgba(0,245,160,0.9)); } }
+  @keyframes fadeUp { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
+  @keyframes splashOut { to { opacity: 0; pointer-events: none; } }
+
+  /* APP LAYOUT */
+  #app {
+    display: flex;
+    height: 100vh;
+    width: 100%;
+  }
+
+  /* SCREENS */
+  .screen { display: none; width: 100%; height: 100%; flex-direction: column; }
+  .screen.active { display: flex; }
+
+  /* === MOBILE FRAME === */
+  .mobile-wrapper {
+    display: flex;
+    justify-content: center;
+    align-items: flex-start;
+    width: 100%;
+    min-height: 100%;
+    background: var(--bg-deep);
+  }
+
+  .mobile-frame {
+    width: 100%;
+    max-width: 480px;
+    min-height: 100vh;
+    height: auto;
+    background: var(--bg-dark);
+    border-radius: 0;
+    border: none;
+    box-shadow: 0 0 40px rgba(0,245,160,0.05);
+    overflow: visible;
+    display: flex;
+    flex-direction: column;
+    position: relative;
+  }
+
+  @media (min-width: 520px) {
+    .mobile-wrapper {
+      padding: 20px;
+      align-items: center;
+      min-height: 100vh;
+      background: radial-gradient(ellipse at center, #0d1220 0%, #0a0b0f 70%);
+    }
+    .mobile-frame {
+      width: 420px;
+      min-height: 860px;
+      height: 860px;
+      border-radius: 32px;
+      border: 2px solid var(--border);
+      box-shadow: 0 0 60px rgba(0,245,160,0.1), 0 30px 80px rgba(0,0,0,0.8);
+      overflow: hidden;
+    }
+  }
+
+  .status-bar {
+    height: 44px;
+    background: var(--bg-dark);
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 0 16px;
+    font-size: 0.75rem;
+    font-weight: 600;
+    color: var(--text-secondary);
+    flex-shrink: 0;
+    border-bottom: 1px solid var(--border);
+  }
+
+  .status-notch {
+    width: 120px; height: 34px;
+    background: var(--bg-deep);
+    border-radius: 0 0 20px 20px;
+    position: absolute;
+    top: 0; left: 50%; transform: translateX(-50%);
+  }
+
+  /* LOGIN SCREEN */
+  #loginScreen {
+    background: var(--bg-dark);
+    justify-content: center;
+    align-items: center;
+    padding: 40px 20px;
+    gap: 0;
+    min-height: calc(100vh - 44px);
+  }
+
+  .login-logo-wrap {
+    text-align: center;
+    margin-bottom: 36px;
+  }
+
+  .login-logo {
+    font-family: 'Orbitron', monospace;
+    font-size: 2rem;
+    font-weight: 900;
+    background: linear-gradient(135deg, var(--accent), var(--accent2));
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    letter-spacing: 3px;
+    filter: drop-shadow(0 0 15px rgba(0,245,160,0.4));
+  }
+
+  .login-subtitle {
+    color: var(--text-secondary);
+    font-size: 0.85rem;
+    letter-spacing: 3px;
+    text-transform: uppercase;
+    margin-top: 6px;
+  }
+
+  .login-card {
+    background: var(--bg-panel);
+    border: 1px solid var(--border);
+    border-radius: 20px;
+    padding: 28px;
+    width: 100%;
+    box-shadow: 0 20px 60px rgba(0,0,0,0.4);
+  }
+
+  .login-title {
+    font-family: 'Orbitron', monospace;
+    font-size: 1.1rem;
+    font-weight: 700;
+    color: var(--text-primary);
+    text-align: center;
+    margin-bottom: 24px;
+    letter-spacing: 1px;
+  }
+
+  .input-group {
+    margin-bottom: 16px;
+  }
+
+  .input-group label {
+    display: block;
+    font-size: 0.75rem;
+    font-weight: 700;
+    color: var(--text-secondary);
+    text-transform: uppercase;
+    letter-spacing: 1px;
+    margin-bottom: 8px;
+  }
+
+  .input-group input {
+    width: 100%;
+    background: var(--bg-dark);
+    border: 1px solid var(--border);
+    border-radius: 10px;
+    padding: 12px 16px;
+    color: var(--text-primary);
+    font-family: 'Rajdhani', sans-serif;
+    font-size: 1rem;
+    font-weight: 600;
+    outline: none;
+    transition: border-color 0.2s, box-shadow 0.2s;
+  }
+
+  .input-group input:focus {
+    border-color: var(--accent);
+    box-shadow: 0 0 0 3px rgba(0,245,160,0.15);
+  }
+
+  .btn-primary {
+    width: 100%;
+    padding: 14px;
+    background: linear-gradient(135deg, var(--accent), var(--accent2));
+    border: none;
+    border-radius: 12px;
+    color: var(--bg-deep);
+    font-family: 'Orbitron', monospace;
+    font-size: 0.9rem;
+    font-weight: 700;
+    letter-spacing: 2px;
+    cursor: pointer;
+    margin-top: 8px;
+    transition: all 0.2s;
+    text-transform: uppercase;
+  }
+
+  .btn-primary:hover { transform: translateY(-1px); box-shadow: var(--glow); }
+  .btn-primary:active { transform: translateY(0); }
+
+  .login-divider {
+    text-align: center;
+    margin: 16px 0;
+    color: var(--text-muted);
+    font-size: 0.8rem;
+    position: relative;
+  }
+
+  .login-divider::before, .login-divider::after {
+    content: '';
+    position: absolute;
+    top: 50%;
+    width: 35%;
+    height: 1px;
+    background: var(--border);
+  }
+
+  .login-divider::before { left: 0; }
+  .login-divider::after { right: 0; }
+
+  .btn-secondary {
+    width: 100%;
+    padding: 12px;
+    background: transparent;
+    border: 1px solid var(--border);
+    border-radius: 12px;
+    color: var(--text-secondary);
+    font-family: 'Rajdhani', sans-serif;
+    font-size: 0.95rem;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.2s;
+  }
+
+  .btn-secondary:hover { border-color: var(--accent2); color: var(--accent2); }
+
+  /* MAIN APP */
+  #mainScreen {
+    flex-direction: row;
+    overflow: hidden;
+  }
+
+  /* SERVER SIDEBAR */
+  .server-sidebar {
+    width: 64px;
+    background: var(--bg-deep);
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    padding: 12px 0;
+    gap: 6px;
+    border-right: 1px solid var(--border);
+    overflow-y: auto;
+    flex-shrink: 0;
+  }
+
+  .server-sidebar::-webkit-scrollbar { display: none; }
+
+  .server-icon {
+    width: 44px; height: 44px;
+    border-radius: 16px;
+    background: var(--bg-panel);
+    display: flex; align-items: center; justify-content: center;
+    cursor: pointer;
+    transition: all 0.2s;
+    position: relative;
+    font-size: 1.2rem;
+    flex-shrink: 0;
+    border: 2px solid transparent;
+  }
+
+  .server-icon:hover, .server-icon.active {
+    border-radius: 12px;
+    border-color: var(--accent);
+    box-shadow: 0 0 12px rgba(0,245,160,0.3);
+  }
+
+  .server-icon.home {
+    background: linear-gradient(135deg, var(--accent), var(--accent2));
+    font-family: 'Orbitron', monospace;
+    font-size: 0.6rem;
+    font-weight: 900;
+    color: var(--bg-deep);
+    letter-spacing: 0;
+  }
+
+  .server-icon .badge {
+    position: absolute;
+    top: -4px; right: -4px;
+    width: 18px; height: 18px;
+    background: var(--danger);
+    border-radius: 50%;
+    font-size: 0.6rem;
+    font-weight: 700;
+    display: flex; align-items: center; justify-content: center;
+    border: 2px solid var(--bg-deep);
+  }
+
+  .sidebar-divider {
+    width: 32px; height: 2px;
+    background: var(--border);
+    border-radius: 1px;
+    margin: 4px 0;
+  }
+
+  /* CHANNEL PANEL */
+  .channel-panel {
+    width: 200px;
+    background: var(--bg-mid);
+    display: flex;
+    flex-direction: column;
+    border-right: 1px solid var(--border);
+    flex-shrink: 0;
+    transition: width 0.25s cubic-bezier(0.4,0,0.2,1);
+    overflow: hidden;
+  }
+
+  .channel-panel.collapsed {
+    width: 0;
+    border-right: none;
+  }
+
+  .channel-panel.collapsed .channel-list,
+  .channel-panel.collapsed .user-panel,
+  .channel-panel.collapsed .server-header-name {
+    opacity: 0;
+    pointer-events: none;
+  }
+
+  /* Toggle button on chat header */
+  .sidebar-toggle {
+    width: 28px; height: 28px;
+    border-radius: 6px;
+    background: transparent;
+    border: none;
+    color: var(--text-muted);
+    cursor: pointer;
+    display: flex; align-items: center; justify-content: center;
+    font-size: 1rem;
+    transition: all 0.2s;
+    flex-shrink: 0;
+  }
+  .sidebar-toggle:hover { background: var(--bg-hover); color: var(--accent); }
+
+  .server-header {
+    padding: 16px 14px;
+    border-bottom: 1px solid var(--border);
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    transition: background 0.2s;
+  }
+
+  .server-header:hover { background: var(--bg-hover); }
+
+  .server-header-name {
+    font-family: 'Orbitron', monospace;
+    font-size: 0.8rem;
+    font-weight: 700;
+    color: var(--text-primary);
+    letter-spacing: 1px;
+  }
+
+  .channel-list {
+    flex: 1;
+    overflow-y: auto;
+    padding: 8px 0;
+  }
+
+  .channel-list::-webkit-scrollbar { width: 4px; }
+  .channel-list::-webkit-scrollbar-track { background: transparent; }
+  .channel-list::-webkit-scrollbar-thumb { background: var(--border); border-radius: 2px; }
+
+  .channel-category {
+    padding: 16px 14px 6px;
+    font-size: 0.65rem;
+    font-weight: 700;
+    color: var(--text-muted);
+    text-transform: uppercase;
+    letter-spacing: 1.5px;
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    cursor: pointer;
+    user-select: none;
+    transition: color 0.15s;
+  }
+  .channel-category:hover { color: var(--text-secondary); }
+
+  .cat-arrow {
+    margin-left: auto;
+    font-size: 0.6rem;
+    transition: transform 0.2s ease;
+    color: var(--text-muted);
+  }
+  .cat-arrow.collapsed { transform: rotate(-90deg); }
+
+  .cat-items {
+    overflow: hidden;
+    max-height: 500px;
+    transition: max-height 0.25s ease;
+  }
+  .cat-items.collapsed { max-height: 0; }
+
+  .channel-item {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    padding: 7px 14px;
+    cursor: pointer;
+    border-radius: 6px;
+    margin: 1px 6px;
+    color: var(--text-muted);
+    font-size: 0.9rem;
+    font-weight: 600;
+    transition: all 0.15s;
+    position: relative;
+  }
+
+  .channel-item:hover { background: var(--bg-hover); color: var(--text-secondary); }
+  .channel-item.active { background: var(--bg-hover); color: var(--text-primary); }
+
+  .channel-item .ch-icon { font-size: 0.85rem; flex-shrink: 0; }
+
+  .channel-item .ch-badge {
+    margin-left: auto;
+    background: var(--danger);
+    color: white;
+    border-radius: 10px;
+    padding: 1px 7px;
+    font-size: 0.65rem;
+    font-weight: 700;
+  }
+
+  .online-dot {
+    width: 8px; height: 8px;
+    border-radius: 50%;
+    background: var(--accent);
+    flex-shrink: 0;
+  }
+
+  /* USER PANEL BOTTOM */
+  .user-panel {
+    padding: 10px 12px;
+    background: var(--bg-dark);
+    border-top: 1px solid var(--border);
+    display: flex;
+    align-items: center;
+    gap: 8px;
+  }
+
+  .user-avatar {
+    width: 32px; height: 32px;
+    border-radius: 50%;
+    background: linear-gradient(135deg, var(--accent4), var(--accent));
+    display: flex; align-items: center; justify-content: center;
+    font-size: 0.8rem;
+    font-weight: 700;
+    position: relative;
+    flex-shrink: 0;
+  }
+
+  .user-avatar::after {
+    content: '';
+    position: absolute;
+    bottom: 0; right: 0;
+    width: 10px; height: 10px;
+    border-radius: 50%;
+    background: var(--accent);
+    border: 2px solid var(--bg-dark);
+  }
+
+  .user-info { flex: 1; min-width: 0; }
+  .user-name { font-size: 0.85rem; font-weight: 700; color: var(--text-primary); }
+  .user-tag { font-size: 0.7rem; color: var(--text-muted); }
+
+  .user-actions { display: flex; gap: 4px; }
+
+  .icon-btn {
+    width: 28px; height: 28px;
+    border-radius: 6px;
+    background: transparent;
+    border: none;
+    color: var(--text-muted);
+    cursor: pointer;
+    display: flex; align-items: center; justify-content: center;
+    font-size: 0.85rem;
+    transition: all 0.2s;
+  }
+
+  .icon-btn:hover { background: var(--bg-hover); color: var(--text-secondary); }
+
+  /* MAIN CHAT AREA */
+  .chat-area {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    overflow: hidden;
+    background: var(--bg-dark);
+  }
+
+  .chat-header {
+    padding: 12px 16px;
+    border-bottom: 1px solid var(--border);
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    background: var(--bg-dark);
+    flex-shrink: 0;
+  }
+
+  .chat-header-icon { font-size: 1rem; color: var(--text-muted); }
+
+  .chat-header-name {
+    font-size: 1rem;
+    font-weight: 700;
+    color: var(--text-primary);
+    flex: 1;
+  }
+
+  .chat-header-topic {
+    font-size: 0.75rem;
+    color: var(--text-muted);
+  }
+
+  .header-actions { display: flex; gap: 4px; }
+
+  .chat-messages {
+    flex: 1;
+    overflow-y: auto;
+    padding: 16px 12px;
+    display: flex;
+    flex-direction: column;
+    gap: 2px;
+  }
+
+  .chat-messages::-webkit-scrollbar { width: 4px; }
+  .chat-messages::-webkit-scrollbar-thumb { background: var(--border); border-radius: 2px; }
+
+  .msg-group {
+    display: flex;
+    gap: 12px;
+    padding: 4px 0;
+    transition: background 0.1s;
+    border-radius: 8px;
+    padding: 6px 8px;
+  }
+
+  .msg-group:hover { background: rgba(255,255,255,0.02); }
+
+  .msg-avatar {
+    width: 36px; height: 36px;
+    border-radius: 50%;
+    flex-shrink: 0;
+    display: flex; align-items: center; justify-content: center;
+    font-size: 0.85rem;
+    font-weight: 700;
+    margin-top: 2px;
+  }
+
+  .msg-content { flex: 1; min-width: 0; }
+
+  .msg-meta {
+    display: flex;
+    align-items: baseline;
+    gap: 8px;
+    margin-bottom: 3px;
+  }
+
+  .msg-author {
+    font-size: 0.9rem;
+    font-weight: 700;
+    color: var(--text-primary);
+    cursor: pointer;
+  }
+
+  .msg-author:hover { text-decoration: underline; }
+
+  .msg-author.admin { color: var(--accent3); }
+  .msg-author.mod { color: var(--accent); }
+  .msg-author.bot { color: var(--accent2); }
+
+  .msg-time {
+    font-size: 0.65rem;
+    color: var(--text-muted);
+    font-weight: 400;
+  }
+
+  .msg-text {
+    font-size: 0.9rem;
+    font-weight: 400;
+    color: var(--text-secondary);
+    line-height: 1.4;
+  }
+
+  .msg-text .mention {
+    background: rgba(168,85,247,0.2);
+    color: var(--accent4);
+    border-radius: 3px;
+    padding: 0 3px;
+    font-weight: 600;
+  }
+
+  .role-badge {
+    font-size: 0.6rem;
+    font-weight: 700;
+    padding: 1px 6px;
+    border-radius: 4px;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+  }
+
+  .role-badge.admin-badge { background: rgba(255,107,53,0.2); color: var(--accent3); border: 1px solid rgba(255,107,53,0.3); }
+  .role-badge.mod-badge { background: rgba(0,245,160,0.1); color: var(--accent); border: 1px solid rgba(0,245,160,0.2); }
+
+  /* CHAT INPUT */
+  .chat-input-area {
+    padding: 12px 14px 16px;
+    flex-shrink: 0;
+  }
+
+  .chat-input-wrap {
+    background: var(--bg-panel);
+    border: 1px solid var(--border);
+    border-radius: 14px;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    padding: 10px 14px;
+    transition: border-color 0.2s;
+  }
+
+  .chat-input-wrap:focus-within {
+    border-color: rgba(0,245,160,0.3);
+  }
+
+  .chat-input-wrap input {
+    flex: 1;
+    background: transparent;
+    border: none;
+    outline: none;
+    color: var(--text-primary);
+    font-family: 'Rajdhani', sans-serif;
+    font-size: 0.95rem;
+    font-weight: 400;
+  }
+
+  .chat-input-wrap input::placeholder { color: var(--text-muted); }
+
+  .input-icon-btn {
+    background: none; border: none;
+    color: var(--text-muted);
+    cursor: pointer;
+    font-size: 1.1rem;
+    padding: 2px;
+    transition: color 0.2s;
+    flex-shrink: 0;
+  }
+
+  .input-icon-btn:hover { color: var(--text-secondary); }
+
+  /* DONATE BUTTON */
+  .donate-bar {
+    padding: 10px 14px;
+    background: var(--bg-dark);
+    border-top: 1px solid var(--border);
+    flex-shrink: 0;
+  }
+
+  .btn-donate {
+    width: 100%;
+    padding: 11px;
+    background: linear-gradient(135deg, #ff6b35, #ff4757);
+    border: none;
+    border-radius: 10px;
+    color: white;
+    font-family: 'Orbitron', monospace;
+    font-size: 0.75rem;
+    font-weight: 700;
+    letter-spacing: 1.5px;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+    transition: all 0.2s;
+    text-transform: uppercase;
+  }
+
+  .btn-donate:hover {
+    transform: translateY(-1px);
+    box-shadow: 0 6px 20px rgba(255,71,87,0.4);
+  }
+
+  /* VOICE CHANNEL OVERLAY */
+  .voice-overlay {
+    display: none;
+    position: absolute;
+    inset: 0;
+    background: rgba(10,11,15,0.95);
+    backdrop-filter: blur(10px);
+    z-index: 100;
+    flex-direction: column;
+    padding: 40px 24px 24px;
+    align-items: center;
+  }
+
+  .voice-overlay.show { display: flex; }
+
+  .voice-header {
+    text-align: center;
+    margin-bottom: 32px;
+  }
+
+  .voice-title {
+    font-family: 'Orbitron', monospace;
+    font-size: 1rem;
+    font-weight: 700;
+    color: var(--text-primary);
+    margin-bottom: 6px;
+  }
+
+  .voice-status {
+    font-size: 0.8rem;
+    color: var(--accent);
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    justify-content: center;
+  }
+
+  .voice-status::before {
+    content: '';
+    width: 8px; height: 8px;
+    border-radius: 50%;
+    background: var(--accent);
+    animation: blink 1s infinite;
+  }
+
+  @keyframes blink { 0%, 100% { opacity: 1; } 50% { opacity: 0.3; } }
+
+  /* VIDEO GRID */
+  .video-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 10px;
+    width: 100%;
+    margin-bottom: 24px;
+  }
+
+  .video-tile {
+    aspect-ratio: 16/10;
+    background: var(--bg-panel);
+    border-radius: 12px;
+    border: 1px solid var(--border);
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+    position: relative;
+    overflow: hidden;
+  }
+
+  .video-tile.you { border-color: var(--accent); }
+
+  .video-tile-avatar {
+    width: 42px; height: 42px;
+    border-radius: 50%;
+    display: flex; align-items: center; justify-content: center;
+    font-size: 1rem;
+    font-weight: 700;
+  }
+
+  .video-tile-name {
+    position: absolute;
+    bottom: 6px; left: 8px;
+    font-size: 0.7rem;
+    font-weight: 700;
+    color: white;
+    background: rgba(0,0,0,0.6);
+    padding: 2px 7px;
+    border-radius: 5px;
+  }
+
+  .speaking-ring {
+    position: absolute;
+    inset: 0;
+    border-radius: 12px;
+    border: 2px solid var(--accent);
+    animation: speakPulse 1s ease-in-out infinite;
+  }
+
+  @keyframes speakPulse {
+    0%, 100% { opacity: 0; transform: scale(1); }
+    50% { opacity: 1; transform: scale(1.01); }
+  }
+
+  /* VOICE CONTROLS */
+  .voice-controls {
+    display: flex;
+    gap: 14px;
+    align-items: center;
+    justify-content: center;
+    width: 100%;
+    margin-bottom: 20px;
+  }
+
+  .vc-btn {
+    width: 52px; height: 52px;
+    border-radius: 50%;
+    border: none;
+    cursor: pointer;
+    display: flex; align-items: center; justify-content: center;
+    font-size: 1.2rem;
+    transition: all 0.2s;
+  }
+
+  .vc-btn.active { background: var(--bg-panel); color: var(--text-primary); }
+  .vc-btn.active:hover { background: var(--bg-hover); }
+  .vc-btn.off { background: rgba(255,71,87,0.2); color: var(--danger); border: 1px solid rgba(255,71,87,0.3); }
+  .vc-btn.end { background: var(--danger); color: white; width: 64px; height: 64px; font-size: 1.4rem; }
+  .vc-btn.end:hover { background: #e03549; transform: scale(1.05); }
+
+  .participants-list {
+    width: 100%;
+    background: var(--bg-panel);
+    border-radius: 12px;
+    border: 1px solid var(--border);
+    overflow: hidden;
+  }
+
+  .participants-header {
+    padding: 10px 14px;
+    border-bottom: 1px solid var(--border);
+    font-size: 0.75rem;
+    font-weight: 700;
+    color: var(--text-muted);
+    text-transform: uppercase;
+    letter-spacing: 1px;
+  }
+
+  .participant-row {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    padding: 8px 14px;
+  }
+
+  .participant-row:not(:last-child) { border-bottom: 1px solid rgba(42,51,71,0.5); }
+
+  .p-avatar {
+    width: 30px; height: 30px;
+    border-radius: 50%;
+    display: flex; align-items: center; justify-content: center;
+    font-size: 0.75rem;
+    font-weight: 700;
+    flex-shrink: 0;
+  }
+
+  .p-name { flex: 1; font-size: 0.85rem; font-weight: 600; }
+  .p-icons { display: flex; gap: 4px; color: var(--text-muted); font-size: 0.8rem; }
+
+  /* ADMIN PANEL */
+  .admin-overlay {
+    display: none;
+    position: absolute;
+    inset: 0;
+    background: var(--bg-dark);
+    z-index: 200;
+    flex-direction: column;
+    overflow-y: auto;
+  }
+
+  .admin-overlay.show { display: flex; }
+
+  .admin-header {
+    padding: 20px 20px 16px;
+    border-bottom: 1px solid var(--border);
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    background: var(--bg-dark);
+    flex-shrink: 0;
+  }
+
+  .admin-title {
+    font-family: 'Orbitron', monospace;
+    font-size: 1rem;
+    font-weight: 700;
+    background: linear-gradient(135deg, var(--accent3), #ff4757);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    letter-spacing: 1px;
+  }
+
+  .admin-content { padding: 20px; flex: 1; }
+
+  .stats-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 12px;
+    margin-bottom: 24px;
+  }
+
+  .stat-card {
+    background: var(--bg-panel);
+    border: 1px solid var(--border);
+    border-radius: 14px;
+    padding: 16px;
+    text-align: center;
+  }
+
+  .stat-value {
+    font-family: 'Orbitron', monospace;
+    font-size: 1.5rem;
+    font-weight: 700;
+    background: linear-gradient(135deg, var(--accent), var(--accent2));
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+  }
+
+  .stat-label {
+    font-size: 0.7rem;
+    color: var(--text-muted);
+    text-transform: uppercase;
+    letter-spacing: 1px;
+    margin-top: 4px;
+  }
+
+  .earnings-card {
+    background: linear-gradient(135deg, rgba(255,107,53,0.15), rgba(255,71,87,0.1));
+    border: 1px solid rgba(255,107,53,0.3);
+    border-radius: 16px;
+    padding: 20px;
+    margin-bottom: 20px;
+  }
+
+  .earnings-label {
+    font-size: 0.75rem;
+    font-weight: 700;
+    color: var(--accent3);
+    text-transform: uppercase;
+    letter-spacing: 1.5px;
+    margin-bottom: 8px;
+  }
+
+  .earnings-amount {
+    font-family: 'Orbitron', monospace;
+    font-size: 2.2rem;
+    font-weight: 900;
+    color: white;
+    margin-bottom: 16px;
+  }
+
+  .earnings-breakdown {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+    margin-bottom: 16px;
+  }
+
+  .breakdown-row {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 8px 12px;
+    background: rgba(0,0,0,0.2);
+    border-radius: 8px;
+  }
+
+  .breakdown-label { font-size: 0.8rem; color: var(--text-secondary); }
+  .breakdown-amount { font-size: 0.85rem; font-weight: 700; color: var(--text-primary); }
+
+  .btn-withdraw {
+    width: 100%;
+    padding: 14px;
+    background: linear-gradient(135deg, var(--accent3), #ff4757);
+    border: none;
+    border-radius: 12px;
+    color: white;
+    font-family: 'Orbitron', monospace;
+    font-size: 0.8rem;
+    font-weight: 700;
+    letter-spacing: 1.5px;
+    cursor: pointer;
+    text-transform: uppercase;
+    transition: all 0.2s;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+  }
+
+  .btn-withdraw:hover { transform: translateY(-1px); box-shadow: 0 6px 20px rgba(255,107,53,0.4); }
+
+  .section-title {
+    font-family: 'Orbitron', monospace;
+    font-size: 0.8rem;
+    font-weight: 700;
+    color: var(--text-secondary);
+    text-transform: uppercase;
+    letter-spacing: 1.5px;
+    margin-bottom: 12px;
+  }
+
+  .admin-actions {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 10px;
+    margin-bottom: 20px;
+  }
+
+  .admin-action-btn {
+    background: var(--bg-panel);
+    border: 1px solid var(--border);
+    border-radius: 12px;
+    padding: 14px 12px;
+    color: var(--text-secondary);
+    font-family: 'Rajdhani', sans-serif;
+    font-size: 0.85rem;
+    font-weight: 700;
+    cursor: pointer;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 6px;
+    transition: all 0.2s;
+    text-align: center;
+  }
+
+  .admin-action-btn:hover { background: var(--bg-hover); color: var(--text-primary); border-color: var(--accent2); }
+  .admin-action-btn .a-icon { font-size: 1.3rem; }
+
+  .recent-donations {
+    background: var(--bg-panel);
+    border: 1px solid var(--border);
+    border-radius: 14px;
+    overflow: hidden;
+  }
+
+  .donation-row {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    padding: 12px 14px;
+    border-bottom: 1px solid rgba(42,51,71,0.6);
+  }
+
+  .donation-row:last-child { border-bottom: none; }
+
+  .donation-avatar {
+    width: 34px; height: 34px;
+    border-radius: 50%;
+    display: flex; align-items: center; justify-content: center;
+    font-size: 0.8rem;
+    font-weight: 700;
+    flex-shrink: 0;
+  }
+
+  .donation-info { flex: 1; }
+  .donation-name { font-size: 0.85rem; font-weight: 700; color: var(--text-primary); }
+  .donation-time { font-size: 0.7rem; color: var(--text-muted); }
+  .donation-amount { font-size: 0.9rem; font-weight: 700; color: var(--accent); font-family: 'Orbitron', monospace; }
+
+  /* DONATE MODAL */
+  .modal-overlay {
+    display: none;
+    position: absolute;
+    inset: 0;
+    background: rgba(0,0,0,0.8);
+    backdrop-filter: blur(6px);
+    z-index: 300;
+    align-items: flex-end;
+    justify-content: center;
+    padding: 0;
+  }
+
+  .modal-overlay.show { display: flex; }
+
+  .modal-sheet {
+    background: var(--bg-panel);
+    border-radius: 24px 24px 0 0;
+    border: 1px solid var(--border);
+    border-bottom: none;
+    padding: 24px 24px 36px;
+    width: 100%;
+    animation: slideUp 0.3s ease;
+  }
+
+  @keyframes slideUp { from { transform: translateY(100%); } to { transform: translateY(0); } }
+
+  .sheet-handle {
+    width: 40px; height: 4px;
+    background: var(--border);
+    border-radius: 2px;
+    margin: 0 auto 20px;
+  }
+
+  .sheet-title {
+    font-family: 'Orbitron', monospace;
+    font-size: 1rem;
+    font-weight: 700;
+    color: var(--text-primary);
+    text-align: center;
+    margin-bottom: 6px;
+  }
+
+  .sheet-desc {
+    font-size: 0.85rem;
+    color: var(--text-muted);
+    text-align: center;
+    margin-bottom: 20px;
+  }
+
+  .amount-grid {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 10px;
+    margin-bottom: 16px;
+  }
+
+  .amount-btn {
+    padding: 12px;
+    background: var(--bg-dark);
+    border: 1px solid var(--border);
+    border-radius: 10px;
+    color: var(--text-secondary);
+    font-family: 'Orbitron', monospace;
+    font-size: 0.85rem;
+    font-weight: 700;
+    cursor: pointer;
+    transition: all 0.2s;
+    text-align: center;
+  }
+
+  .amount-btn:hover, .amount-btn.selected {
+    border-color: var(--accent3);
+    color: var(--accent3);
+    background: rgba(255,107,53,0.1);
+  }
+
+  .close-btn {
+    background: var(--bg-card);
+    border: 1px solid var(--border);
+    border-radius: 10px;
+    color: var(--text-muted);
+    padding: 12px;
+    width: 100%;
+    font-family: 'Rajdhani', sans-serif;
+    font-size: 0.9rem;
+    font-weight: 700;
+    cursor: pointer;
+    margin-top: 10px;
+    transition: all 0.2s;
+  }
+
+  .close-btn:hover { color: var(--text-primary); }
+
+  /* MEMBERS PANEL */
+  .members-panel {
+    width: 200px;
+    background: var(--bg-mid);
+    border-left: 1px solid var(--border);
+    display: flex;
+    flex-direction: column;
+    flex-shrink: 0;
+    overflow: hidden;
+  }
+
+  .members-header {
+    padding: 14px 12px 10px;
+    font-size: 0.7rem;
+    font-weight: 700;
+    color: var(--text-muted);
+    text-transform: uppercase;
+    letter-spacing: 1px;
+    border-bottom: 1px solid var(--border);
+  }
+
+  .members-list { flex: 1; overflow-y: auto; padding: 8px 0; }
+  .members-list::-webkit-scrollbar { display: none; }
+
+  .member-category {
+    padding: 10px 12px 4px;
+    font-size: 0.65rem;
+    color: var(--text-muted);
+    text-transform: uppercase;
+    letter-spacing: 1px;
+    font-weight: 700;
+  }
+
+  .member-item {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    padding: 6px 12px;
+    cursor: pointer;
+    border-radius: 6px;
+    margin: 1px 6px;
+    transition: background 0.15s;
+  }
+
+  .member-item:hover { background: var(--bg-hover); }
+
+  .m-avatar {
+    width: 28px; height: 28px;
+    border-radius: 50%;
+    display: flex; align-items: center; justify-content: center;
+    font-size: 0.7rem;
+    font-weight: 700;
+    flex-shrink: 0;
+    position: relative;
+  }
+
+  .m-status {
+    position: absolute;
+    bottom: -1px; right: -1px;
+    width: 9px; height: 9px;
+    border-radius: 50%;
+    border: 2px solid var(--bg-mid);
+  }
+
+  .m-status.online { background: var(--accent); }
+  .m-status.idle { background: #ffd32a; }
+  .m-status.dnd { background: var(--danger); }
+
+  .m-name { font-size: 0.8rem; font-weight: 600; color: var(--text-muted); }
+  .m-name.admin-name { color: var(--accent3); }
+
+  /* TOAST NOTIFICATION */
+  .toast {
+    position: absolute;
+    top: 60px;
+    left: 50%; transform: translateX(-50%);
+    background: var(--bg-card);
+    border: 1px solid var(--border);
+    border-radius: 12px;
+    padding: 12px 20px;
+    font-size: 0.85rem;
+    font-weight: 600;
+    color: var(--text-primary);
+    box-shadow: 0 10px 30px rgba(0,0,0,0.5);
+    z-index: 500;
+    white-space: nowrap;
+    opacity: 0;
+    transition: opacity 0.3s;
+    pointer-events: none;
+  }
+
+  .toast.show { opacity: 1; }
+
+  /* REACTIONS */
+  .msg-reactions {
+    display: flex;
+    gap: 4px;
+    margin-top: 4px;
+    flex-wrap: wrap;
+  }
+
+  .reaction {
+    background: rgba(255,255,255,0.05);
+    border: 1px solid var(--border);
+    border-radius: 20px;
+    padding: 2px 8px;
+    font-size: 0.75rem;
+    cursor: pointer;
+    transition: all 0.2s;
+    display: flex;
+    align-items: center;
+    gap: 4px;
+  }
+
+  .reaction:hover { background: rgba(0,245,160,0.1); border-color: var(--accent); }
+  .reaction .r-count { color: var(--text-muted); font-family: 'Rajdhani', sans-serif; font-size: 0.7rem; }
+
+  /* NAV TABS (bottom of mobile) */
+  .mobile-nav {
+    display: flex;
+    background: var(--bg-deep);
+    border-top: 1px solid var(--border);
+    flex-shrink: 0;
+  }
+
+  .nav-tab {
+    flex: 1;
+    padding: 10px 6px 6px;
+    background: none;
+    border: none;
+    cursor: pointer;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 3px;
+    transition: all 0.2s;
+  }
+
+  .nav-tab-icon { font-size: 1.2rem; }
+  .nav-tab-label { font-size: 0.6rem; font-weight: 700; color: var(--text-muted); text-transform: uppercase; letter-spacing: 0.5px; }
+  .nav-tab.active .nav-tab-icon { filter: drop-shadow(0 0 6px var(--accent)); }
+  .nav-tab.active .nav-tab-label { color: var(--accent); }
+
+
+  /* RESPONSIVE FIXES */
+  @media (max-width: 380px) {
+    .channel-panel { width: 160px; }
+    .server-sidebar { width: 52px; }
+    .channel-item { font-size: 0.8rem; padding: 6px 8px; }
+    .chat-header-name { font-size: 0.9rem; }
+  }
+  @media (max-width: 320px) {
+    .channel-panel { display: none; }
+  }
+  .screen.active { display: flex; flex: 1; }
+
+  /* SETTINGS INPUTS */
+  #settingsPanel .input-group input,
+  #settingsPanel input[type="text"],
+  #settingsPanel input[type="password"] {
+    width: 100%;
+    background: var(--bg-dark);
+    border: 1px solid var(--border);
+    border-radius: 10px;
+    padding: 12px 16px;
+    color: var(--text-primary);
+    font-family: 'Rajdhani', sans-serif;
+    font-size: 1rem;
+    font-weight: 600;
+    outline: none;
+    transition: border-color 0.2s, box-shadow 0.2s;
+  }
+  #settingsPanel input:focus {
+    border-color: var(--accent);
+    box-shadow: 0 0 0 3px rgba(0,245,160,0.15);
+  }
+
+  /* CHANNEL CONTEXT MENU */
+  .ch-ctx-menu {
+    position: fixed;
+    background: var(--bg-card);
+    border: 1px solid var(--border);
+    border-radius: 10px;
+    padding: 6px;
+    min-width: 180px;
+    z-index: 9000;
+    box-shadow: 0 8px 30px rgba(0,0,0,0.6);
+    animation: ctxFadeIn 0.12s ease;
+  }
+  @keyframes ctxFadeIn { from { opacity:0; transform:scale(0.95); } to { opacity:1; transform:scale(1); } }
+  .ch-ctx-item {
+    display: flex; align-items: center; gap: 10px;
+    padding: 9px 12px;
+    border-radius: 6px;
+    font-size: 0.88rem; font-weight: 600;
+    cursor: pointer;
+    color: var(--text-secondary);
+    transition: all 0.15s;
+  }
+  .ch-ctx-item:hover { background: var(--bg-hover); color: var(--text-primary); }
+  .ch-ctx-item.danger { color: var(--danger); }
+  .ch-ctx-item.danger:hover { background: rgba(255,71,87,0.15); color: var(--danger); }
+  .ch-ctx-divider { height: 1px; background: var(--border); margin: 4px 0; }
+
+  /* Delete confirm modal */
+  .del-confirm {
+    display: none; position: fixed; inset: 0;
+    background: rgba(0,0,0,0.75); backdrop-filter: blur(6px);
+    z-index: 9500; align-items: center; justify-content: center; padding: 24px;
+  }
+  .del-confirm.show { display: flex; }
+  .del-confirm-box {
+    background: var(--bg-panel); border: 1px solid var(--border);
+    border-radius: 16px; padding: 24px; width: 100%; max-width: 340px;
+    animation: ctxFadeIn 0.2s ease;
+  }
+  .del-confirm-icon { font-size: 2rem; text-align: center; margin-bottom: 12px; }
+  .del-confirm-title { font-family: 'Orbitron',monospace; font-size: 0.95rem; font-weight: 700; color: var(--danger); text-align: center; margin-bottom: 8px; }
+  .del-confirm-desc { font-size: 0.85rem; color: var(--text-muted); text-align: center; line-height: 1.5; margin-bottom: 20px; }
+  .del-confirm-name { color: var(--text-primary); font-weight: 700; }
+
+  /* SCROLLBAR GLOBAL */
+  ::-webkit-scrollbar { width: 4px; height: 4px; }
+  ::-webkit-scrollbar-track { background: transparent; }
+  ::-webkit-scrollbar-thumb { background: var(--border); border-radius: 2px; }
+</style>
+</head>
+<body>
+
+<!-- SPLASH -->
+<div id="splash">
+  <div class="splash-logo">GamersCom</div>
+  <div class="splash-tagline">Connect · Play · Dominate</div>
+  <div class="splash-bar"><div class="splash-bar-fill"></div></div>
+</div>
+
+<!-- MAIN APP -->
+<div id="app" style="display:flex; justify-content:center; align-items:flex-start; width:100%; min-height:100vh; background: var(--bg-deep);">
+
+  <!-- MOBILE FRAME -->
+  <div class="mobile-frame">
+    <div class="status-notch" style="display:none;"></div>
+    <div class="status-bar">
+      <span>9:41</span>
+      <span style="font-family:'Orbitron',monospace;font-size:0.65rem;background:linear-gradient(135deg,#00f5a0,#00d4ff);-webkit-background-clip:text;-webkit-text-fill-color:transparent;">GC</span>
+      <span>📶 🔋</span>
+    </div>
+
+    <!-- ======= LOGIN SCREEN ======= -->
+    <div id="loginScreen" class="screen active">
+      <div class="login-logo-wrap">
+        <div class="login-logo">GamersCom</div>
+        <div class="login-subtitle">Connect · Play · Dominate</div>
+      </div>
+      <div class="login-card">
+        <div class="login-title">BIENVENIDO</div>
+        <div class="input-group">
+          <label>Usuario o Email</label>
+          <input type="text" id="loginUser" placeholder="Usuario o email" value="">
+        </div>
+        <div class="input-group">
+          <label>Contraseña</label>
+          <input type="password" id="loginPass" placeholder="••••••••" value="">
+        </div>
+        <button class="btn-primary" onclick="doLogin()">INGRESAR</button>
+        <div class="login-divider">o</div>
+        <button class="btn-secondary" onclick="showToast('🎮 Registro próximamente!')">Crear cuenta nueva</button>
+      </div>
+
+    </div>
+
+    <!-- ======= MAIN SCREEN ======= -->
+    <div id="mainScreen" class="screen" style="display:none; flex-direction:column; height:calc(100vh - 44px); min-height:calc(100vh - 44px);">
+
+      <!-- TOP: servers + channels + chat + members -->
+      <div style="display:flex; flex:1; overflow:hidden;">
+
+        <!-- SERVER SIDEBAR -->
+        <div class="server-sidebar">
+          <div class="server-icon home active" onclick="showToast('🏠 Inicio')">GC</div>
+          <div class="sidebar-divider"></div>
+          <div class="server-icon" onclick="switchChannel('gaming-general')" title="Gaming Hub">🎮</div>
+          <div class="server-icon" onclick="switchChannel('valorant')" title="Valorant">🔫</div>
+          <div class="server-icon" onclick="switchChannel('minecraft')" title="Minecraft" style="position:relative">⛏️<span class="badge">3</span></div>
+          <div class="server-icon" onclick="switchChannel('lol')" title="League of Legends">⚔️</div>
+          <div class="server-icon" onclick="switchChannel('fortnite')" title="Fortnite">🏗️</div>
+          <div class="sidebar-divider"></div>
+          <div class="server-icon" onclick="switchChannel('anime')" title="Anime">🌸</div>
+          <div class="server-icon" onclick="switchChannel('arte')" title="Arte">🎨</div>
+          <div class="server-icon" style="background:var(--bg-panel); color:var(--accent); font-size:1.4rem; font-weight:300;" onclick="showToast('➕ Crear o unirse a servidor')">+</div>
+        </div>
+
+        <!-- CHANNEL PANEL -->
+        <div class="channel-panel">
+          <div class="server-header">
+            <div class="server-header-name">⚡ GamersCom HQ</div>
+            <span style="color:var(--text-muted); font-size:0.9rem;">▾</span>
+          </div>
+          <div class="channel-list" id="channelList">
+            <!-- Rendered by JS -->
+          </div>
+
+          <!-- User panel at bottom -->
+          <div class="user-panel">
+            <div class="user-avatar" id="userAvatarSide">A</div>
+            <div class="user-info">
+              <div class="user-name" id="userNameSide">Admin</div>
+              <div class="user-tag" id="userTagSide">#0001</div>
+            </div>
+            <div class="user-actions">
+              <button class="icon-btn" title="Micrófono" onclick="toggleMic(this)">🎤</button>
+              <button class="icon-btn" title="Audio" onclick="toggleAudio(this)">🔊</button>
+              <button class="icon-btn" title="Cerrar sesión" onclick="logOut()" style="color:var(--danger);">🚪</button>
+              <button class="icon-btn" title="Configuración" onclick="showSettingsPanel()">⚙️</button>
+            </div>
+          </div>
+        </div>
+
+        <!-- CHAT AREA -->
+        <div class="chat-area" id="chatArea">
+          <div class="chat-header">
+            <button class="sidebar-toggle" onclick="toggleSidebar()" id="sidebarToggleBtn" title="Mostrar/ocultar canales">☰</button>
+            <span class="chat-header-icon">#</span>
+            <div>
+              <div class="chat-header-name" id="chatHeaderName">general</div>
+              <div class="chat-header-topic">Bienvenido a GamersCom 🎮</div>
+            </div>
+            <div class="header-actions">
+              <button class="icon-btn" onclick="showToast('🔍 Buscar mensajes')">🔍</button>
+              <button class="icon-btn" onclick="showToast('📌 Mensajes fijados')">📌</button>
+              <button class="icon-btn" onclick="toggleMembers()">👥</button>
+            </div>
+          </div>
+
+          <div class="chat-messages" id="chatMessages">
+            <!-- Messages rendered by JS -->
+          </div>
+
+          <div class="chat-input-area">
+            <div class="chat-input-wrap">
+              <button class="input-icon-btn" onclick="showToast('📎 Adjuntar archivo')">📎</button>
+              <input type="text" id="msgInput" placeholder="Escribe en #general..." onkeydown="if(event.key==='Enter') sendMsg()">
+              <button class="input-icon-btn" onclick="showToast('😄 Emojis')">😄</button>
+              <button class="input-icon-btn" onclick="showToast('🎁 Stickers')">🎁</button>
+              <button class="input-icon-btn" style="color:var(--accent);" onclick="sendMsg()">➤</button>
+            </div>
+          </div>
+
+          <!-- DONATE BUTTON -->
+          <div class="donate-bar">
+            <button class="btn-donate" onclick="showDonateModal()">
+              ❤️ APOYA GAMERSCOM · DONAR
+            </button>
+          </div>
+        </div>
+
+        <!-- MEMBERS PANEL (hidden by default on mobile) -->
+        <div class="members-panel" id="membersPanel" style="display:none;">
+          <div class="members-header">Miembros — 247</div>
+          <div class="members-list">
+            <div class="member-category">🟢 En línea — 18</div>
+            <div class="member-item">
+              <div class="m-avatar" style="background:linear-gradient(135deg,#ff6b35,#ff4757);">👑<div class="m-status online"></div></div>
+              <div>
+                <div class="m-name admin-name">Admin_GC</div>
+                <div style="font-size:0.65rem; color:var(--accent3);">ADMINISTRADOR</div>
+              </div>
+            </div>
+            <div class="member-item">
+              <div class="m-avatar" style="background:linear-gradient(135deg,#00f5a0,#00d4ff);">S<div class="m-status online"></div></div>
+              <div class="m-name mod-name" style="color:var(--accent);">SniperX99</div>
+            </div>
+            <div class="member-item">
+              <div class="m-avatar" style="background:linear-gradient(135deg,#a855f7,#3b82f6);">V<div class="m-status online"></div></div>
+              <div class="m-name">Valkyrie_Pro</div>
+            </div>
+            <div class="member-item">
+              <div class="m-avatar" style="background:linear-gradient(135deg,#f59e0b,#ef4444);">D<div class="m-status idle"></div></div>
+              <div class="m-name">DarkWolf_7</div>
+            </div>
+            <div class="member-item">
+              <div class="m-avatar" style="background:linear-gradient(135deg,#06b6d4,#3b82f6);">N<div class="m-status online"></div></div>
+              <div class="m-name">NightOwl_GG</div>
+            </div>
+            <div class="member-item">
+              <div class="m-avatar" style="background:linear-gradient(135deg,#ec4899,#a855f7);">P<div class="m-status online"></div></div>
+              <div class="m-name">PixelQueen</div>
+            </div>
+            <div class="member-item">
+              <div class="m-avatar" style="background:linear-gradient(135deg,#10b981,#059669);">Z<div class="m-status dnd"></div></div>
+              <div class="m-name">ZeroKills_lol</div>
+            </div>
+            <div class="member-item">
+              <div class="m-avatar" style="background:linear-gradient(135deg,#6366f1,#8b5cf6);">T<div class="m-status online"></div></div>
+              <div class="m-name">ThunderBolt</div>
+            </div>
+            <div class="member-category" style="margin-top:6px;">💤 Ausente — 229</div>
+            <div class="member-item" style="opacity:0.5">
+              <div class="m-avatar" style="background:var(--bg-card);">G<div class="m-status" style="background:var(--text-muted)"></div></div>
+              <div class="m-name">GhostPlayer</div>
+            </div>
+            <div class="member-item" style="opacity:0.5">
+              <div class="m-avatar" style="background:var(--bg-card);">R<div class="m-status" style="background:var(--text-muted)"></div></div>
+              <div class="m-name">RetroGamer_88</div>
+            </div>
+            <div class="member-item" style="opacity:0.5">
+              <div class="m-avatar" style="background:var(--bg-card);">L<div class="m-status" style="background:var(--text-muted)"></div></div>
+              <div class="m-name">LoneWolf_MX</div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- BOTTOM NAV -->
+      <div class="mobile-nav">
+        <button class="nav-tab active" onclick="setActiveNav(this, 'chat')">
+          <span class="nav-tab-icon">💬</span>
+          <span class="nav-tab-label">Chat</span>
+        </button>
+        <button class="nav-tab" onclick="setActiveNav(this, 'voice'); joinVoice('sala-general')">
+          <span class="nav-tab-icon">🎙️</span>
+          <span class="nav-tab-label">Voz</span>
+        </button>
+        <button class="nav-tab" onclick="setActiveNav(this, 'dm'); showToast('📩 Mensajes directos')">
+          <span class="nav-tab-icon">✉️</span>
+          <span class="nav-tab-label">DMs</span>
+        </button>
+        <button class="nav-tab" onclick="setActiveNav(this, 'search'); showToast('🔍 Buscar servidores y canales')">
+          <span class="nav-tab-icon">🔍</span>
+          <span class="nav-tab-label">Buscar</span>
+        </button>
+        <button class="nav-tab" id="adminNavBtn" onclick="setActiveNav(this, 'admin'); showAdminPanel()" style="display:none;">
+          <span class="nav-tab-icon">🛡️</span>
+          <span class="nav-tab-label">Admin</span>
+        </button>
+        <button class="nav-tab" id="profileNavBtn" onclick="setActiveNav(this, 'settings'); showSettingsPanel()">
+          <span class="nav-tab-icon">⚙️</span>
+          <span class="nav-tab-label">Config</span>
+        </button>
+      </div>
+    </div>
+
+    <!-- VOICE OVERLAY -->
+    <div class="voice-overlay" id="voiceOverlay">
+      <button onclick="closeVoice()" style="position:absolute; top:16px; left:16px; background:none; border:none; color:var(--text-muted); font-size:1.1rem; cursor:pointer;">✕ Cerrar</button>
+      <div class="voice-header">
+        <div class="voice-title" id="voiceChannelName">🔊 Sala General</div>
+        <div class="voice-status">En llamada — 00:04:22</div>
+      </div>
+
+      <div class="video-grid">
+        <div class="video-tile you">
+          <div class="speaking-ring"></div>
+          <div class="video-tile-avatar" style="background:linear-gradient(135deg,#ff6b35,#ff4757);">👑</div>
+          <div style="font-size:0.6rem; color:var(--accent3);">🎤 Hablando</div>
+          <div class="video-tile-name" id="voiceYouName">Tú (Admin)</div>
+        </div>
+        <div class="video-tile">
+          <div class="video-tile-avatar" style="background:linear-gradient(135deg,#00f5a0,#00d4ff);">S</div>
+          <div class="video-tile-name">SniperX99</div>
+        </div>
+        <div class="video-tile">
+          <div class="video-tile-avatar" style="background:linear-gradient(135deg,#a855f7,#3b82f6);">V</div>
+          <div class="video-tile-name">Valkyrie_Pro</div>
+        </div>
+        <div class="video-tile" style="background:rgba(0,245,160,0.05); border-style:dashed; cursor:pointer;" onclick="showToast('🔗 Copiar enlace de invitación')">
+          <div style="color:var(--accent); font-size:1.5rem;">+</div>
+          <div style="font-size:0.7rem; color:var(--text-muted);">Invitar</div>
+        </div>
+      </div>
+
+      <div class="voice-controls">
+        <button class="vc-btn active" id="micBtn" title="Micrófono" onclick="toggleVCMic(this)">🎤</button>
+        <button class="vc-btn active" id="camBtn" title="Cámara" onclick="toggleVCCam(this)">📹</button>
+        <button class="vc-btn end" onclick="closeVoice()" title="Salir">📵</button>
+        <button class="vc-btn active" id="screenBtn" title="Compartir pantalla" onclick="showToast('🖥️ Compartir pantalla activado')">🖥️</button>
+        <button class="vc-btn active" title="Más opciones" onclick="showToast('⚙️ Opciones de llamada')">⋯</button>
+      </div>
+
+      <div class="participants-list">
+        <div class="participants-header">Participantes — 3</div>
+        <div class="participant-row">
+          <div class="p-avatar" style="background:linear-gradient(135deg,#ff6b35,#ff4757);">👑</div>
+          <div class="p-name" id="participantAdminName">Admin_GC</div>
+          <div class="p-icons">🎤 📹</div>
+        </div>
+        <div class="participant-row">
+          <div class="p-avatar" style="background:linear-gradient(135deg,#00f5a0,#00d4ff);">S</div>
+          <div class="p-name">SniperX99</div>
+          <div class="p-icons">🎤</div>
+        </div>
+        <div class="participant-row">
+          <div class="p-avatar" style="background:linear-gradient(135deg,#a855f7,#3b82f6);">V</div>
+          <div class="p-name">Valkyrie_Pro</div>
+          <div class="p-icons">🔇 📹</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ADMIN PANEL OVERLAY -->
+    <div class="admin-overlay" id="adminPanel">
+      <div class="admin-header">
+        <button onclick="closeAdminPanel()" style="background:none;border:none;color:var(--text-muted);font-size:1rem;cursor:pointer;">←</button>
+        <div>
+          <div class="admin-title">🛡️ PANEL ADMIN</div>
+          <div style="font-size:0.7rem; color:var(--text-muted);">Acceso exclusivo • GamersCom</div>
+        </div>
+      </div>
+
+      <div class="admin-content">
+        <!-- Stats -->
+        <div class="section-title" style="margin-bottom:12px;">📊 Estadísticas</div>
+        <div class="stats-grid">
+          <div class="stat-card">
+            <div class="stat-value" id="statMembers">—</div>
+            <div class="stat-label">Miembros</div>
+          </div>
+          <div class="stat-card">
+            <div class="stat-value" id="statOnline">—</div>
+            <div class="stat-label">En línea</div>
+          </div>
+          <div class="stat-card">
+            <div class="stat-value">1.2K</div>
+            <div class="stat-label">Mensajes hoy</div>
+          </div>
+          <div class="stat-card">
+            <div class="stat-value">42</div>
+            <div class="stat-label">En voz</div>
+          </div>
+        </div>
+
+        <!-- EARNINGS (Admin Only) -->
+        <div class="section-title">💰 Ingresos & Donaciones</div>
+        <div class="earnings-card">
+          <div class="earnings-label">💎 Balance total disponible</div>
+          <div class="earnings-amount" id="adminEarningsTotal">$0.00</div>
+          <div class="earnings-breakdown">
+            <div class="breakdown-row">
+              <span class="breakdown-label">❤️ Donaciones</span>
+              <span class="breakdown-amount" id="adminDonationsAmount" style="color:var(--accent3);">$0.00</span>
+            </div>
+            <div class="breakdown-row">
+              <span class="breakdown-label">⭐ Suscripciones Premium</span>
+              <span class="breakdown-amount" style="color:var(--accent);">$312.50</span>
+            </div>
+            <div class="breakdown-row">
+              <span class="breakdown-label">🎮 Nitro / Boosts</span>
+              <span class="breakdown-amount" style="color:var(--accent2);">$144.00</span>
+            </div>
+          </div>
+          <button class="btn-withdraw" onclick="showWithdrawModal()">
+            💸 RETIRAR FONDOS
+          </button>
+        </div>
+
+        <!-- Recent Donations -->
+        <div class="section-title">🕒 Donaciones recientes</div>
+        <div class="recent-donations" id="recentDonationsList" style="margin-bottom:20px;">
+          <div class="donation-row" style="justify-content:center;padding:20px;">
+            <span style="color:var(--text-muted);font-size:0.85rem;">Cargando donaciones...</span>
+          </div>
+        </div>
+
+        <!-- Admin Actions -->
+        <div class="section-title">⚙️ Administración</div>
+        <div class="admin-actions">
+          <button class="admin-action-btn" onclick="showToast('👥 Gestión de usuarios')">
+            <span class="a-icon">👥</span>
+            Gestionar usuarios
+          </button>
+          <button class="admin-action-btn" onclick="showToast('🔨 Panel de moderación')">
+            <span class="a-icon">🔨</span>
+            Moderación
+          </button>
+          <button class="admin-action-btn" onclick="showToast('📢 Nuevo anuncio enviado')">
+            <span class="a-icon">📢</span>
+            Anunciar
+          </button>
+          <button class="admin-action-btn" onclick="showToast('🎨 Editor de roles')">
+            <span class="a-icon">🎨</span>
+            Roles
+          </button>
+          <button class="admin-action-btn" onclick="showToast('📊 Ver analytics completos')">
+            <span class="a-icon">📊</span>
+            Analytics
+          </button>
+          <button class="admin-action-btn" onclick="showToast('🔒 Config. de seguridad')">
+            <span class="a-icon">🔒</span>
+            Seguridad
+          </button>
+        </div>
+      </div>
+    </div>
+
+    <!-- SETTINGS PANEL -->
+    <div class="admin-overlay" id="settingsPanel">
+      <div class="admin-header">
+        <button onclick="closeSettingsPanel()" style="background:none;border:none;color:var(--text-muted);font-size:1.1rem;cursor:pointer;padding:4px 8px;">←</button>
+        <div>
+          <div class="admin-title" style="background:linear-gradient(135deg,#00f5a0,#00d4ff);-webkit-background-clip:text;-webkit-text-fill-color:transparent;">⚙️ CONFIGURACIÓN</div>
+          <div style="font-size:0.7rem;color:var(--text-muted);">Personaliza tu perfil y la app</div>
+        </div>
+      </div>
+
+      <div style="overflow-y:auto;flex:1;padding:20px;">
+
+        <!-- PROFILE SECTION -->
+        <div class="section-title" style="margin-bottom:14px;">👤 Mi Perfil</div>
+        <div style="background:var(--bg-panel);border:1px solid var(--border);border-radius:16px;padding:20px;margin-bottom:20px;">
+
+          <!-- Avatar -->
+          <div style="display:flex;align-items:center;gap:16px;margin-bottom:20px;">
+            <div style="position:relative;">
+              <div id="settingsAvatar" style="width:64px;height:64px;border-radius:50%;background:linear-gradient(135deg,#ff6b35,#ff4757);display:flex;align-items:center;justify-content:center;font-size:1.6rem;border:3px solid var(--accent);box-shadow:0 0 16px rgba(0,245,160,0.3);">👑</div>
+              <label for="avatarUpload" style="position:absolute;bottom:0;right:0;width:22px;height:22px;background:var(--accent);border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:0.65rem;cursor:pointer;border:2px solid var(--bg-panel);" title="Cambiar foto">📷</label>
+              <input type="file" id="avatarUpload" accept="image/*" style="display:none;" onchange="changeAvatar(event)">
+            </div>
+            <div style="flex:1;">
+              <div id="settingsUserName" style="font-family:'Orbitron',monospace;font-size:0.95rem;font-weight:700;color:var(--text-primary);">Admin_GC</div>
+              <div id="settingsUserTag" style="font-size:0.75rem;color:var(--text-muted);margin-top:2px;">#0001 · Administrador</div>
+              <div style="display:flex;gap:6px;margin-top:8px;">
+                <div style="width:8px;height:8px;border-radius:50%;background:var(--accent);margin-top:3px;"></div>
+                <span style="font-size:0.75rem;color:var(--accent);">En línea</span>
+              </div>
+            </div>
+          </div>
+
+          <!-- Display name -->
+          <div class="input-group">
+            <label>Nombre de usuario</label>
+            <input type="text" id="cfgDisplayName" placeholder="Tu nombre visible" oninput="previewName(this.value)">
+          </div>
+
+          <!-- Bio -->
+          <div class="input-group">
+            <label>Biografía</label>
+            <textarea id="cfgBio" placeholder="Cuéntanos sobre ti..." style="width:100%;background:var(--bg-dark);border:1px solid var(--border);border-radius:10px;padding:12px 16px;color:var(--text-primary);font-family:'Rajdhani',sans-serif;font-size:0.95rem;outline:none;resize:none;height:70px;transition:border-color 0.2s;" onfocus="this.style.borderColor='var(--accent)'" onblur="this.style.borderColor='var(--border)'"></textarea>
+          </div>
+
+          <!-- Status -->
+          <div class="input-group">
+            <label>Estado</label>
+            <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;">
+              <button class="status-opt active-status" onclick="setStatus(this,'online','var(--accent)')" style="padding:9px;background:rgba(0,245,160,0.1);border:1px solid var(--accent);border-radius:9px;color:var(--accent);font-size:0.8rem;font-weight:700;cursor:pointer;">🟢 En línea</button>
+              <button class="status-opt" onclick="setStatus(this,'idle','#ffd32a')" style="padding:9px;background:var(--bg-dark);border:1px solid var(--border);border-radius:9px;color:var(--text-muted);font-size:0.8rem;font-weight:700;cursor:pointer;">🟡 Ausente</button>
+              <button class="status-opt" onclick="setStatus(this,'dnd','var(--danger)')" style="padding:9px;background:var(--bg-dark);border:1px solid var(--border);border-radius:9px;color:var(--text-muted);font-size:0.8rem;font-weight:700;cursor:pointer;">🔴 No molestar</button>
+              <button class="status-opt" onclick="setStatus(this,'invisible','var(--text-muted)')" style="padding:9px;background:var(--bg-dark);border:1px solid var(--border);border-radius:9px;color:var(--text-muted);font-size:0.8rem;font-weight:700;cursor:pointer;">⚫ Invisible</button>
+            </div>
+          </div>
+
+          <button onclick="saveProfile()" style="width:100%;padding:13px;background:linear-gradient(135deg,var(--accent),var(--accent2));border:none;border-radius:11px;color:var(--bg-deep);font-family:'Orbitron',monospace;font-size:0.78rem;font-weight:700;letter-spacing:1.5px;cursor:pointer;transition:all 0.2s;" onmouseover="this.style.transform='translateY(-1px)'" onmouseout="this.style.transform='none'">💾 GUARDAR PERFIL</button>
+        </div>
+
+        <!-- APPEARANCE -->
+        <div class="section-title" style="margin-bottom:14px;">🎨 Apariencia</div>
+        <div style="background:var(--bg-panel);border:1px solid var(--border);border-radius:16px;padding:20px;margin-bottom:20px;">
+
+          <div class="input-group">
+            <label>Color de acento principal</label>
+            <div style="display:flex;gap:10px;flex-wrap:wrap;">
+              <div class="color-swatch active-swatch" onclick="setAccent(this,'#00f5a0')" style="width:36px;height:36px;border-radius:50%;background:#00f5a0;cursor:pointer;border:3px solid white;box-shadow:0 0 10px rgba(0,245,160,0.6);"></div>
+              <div class="color-swatch" onclick="setAccent(this,'#00d4ff')" style="width:36px;height:36px;border-radius:50%;background:#00d4ff;cursor:pointer;border:3px solid transparent;"></div>
+              <div class="color-swatch" onclick="setAccent(this,'#a855f7')" style="width:36px;height:36px;border-radius:50%;background:#a855f7;cursor:pointer;border:3px solid transparent;"></div>
+              <div class="color-swatch" onclick="setAccent(this,'#ff6b35')" style="width:36px;height:36px;border-radius:50%;background:#ff6b35;cursor:pointer;border:3px solid transparent;"></div>
+              <div class="color-swatch" onclick="setAccent(this,'#ff4757')" style="width:36px;height:36px;border-radius:50%;background:#ff4757;cursor:pointer;border:3px solid transparent;"></div>
+              <div class="color-swatch" onclick="setAccent(this,'#ffd32a')" style="width:36px;height:36px;border-radius:50%;background:#ffd32a;cursor:pointer;border:3px solid transparent;"></div>
+              <label style="width:36px;height:36px;border-radius:50%;background:conic-gradient(red,yellow,lime,cyan,blue,magenta,red);cursor:pointer;border:3px solid transparent;display:flex;align-items:center;justify-content:center;font-size:0.65rem;" title="Color personalizado">
+                <input type="color" id="customColor" style="opacity:0;width:0;height:0;" onchange="setAccentCustom(this.value)">
+                ＋
+              </label>
+            </div>
+          </div>
+
+          <div class="input-group" style="margin-top:16px;">
+            <label>Tema de fondo</label>
+            <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;">
+              <button class="theme-btn active-theme" onclick="setTheme(this,'dark')" style="padding:12px 8px;background:rgba(0,245,160,0.08);border:1px solid var(--accent);border-radius:10px;color:var(--accent);font-size:0.8rem;font-weight:700;cursor:pointer;">🌙 Oscuro</button>
+              <button class="theme-btn" onclick="setTheme(this,'darker')" style="padding:12px 8px;background:var(--bg-dark);border:1px solid var(--border);border-radius:10px;color:var(--text-muted);font-size:0.8rem;font-weight:700;cursor:pointer;">⬛ Oscuro+</button>
+              <button class="theme-btn" onclick="setTheme(this,'midnight')" style="padding:12px 8px;background:var(--bg-dark);border:1px solid var(--border);border-radius:10px;color:var(--text-muted);font-size:0.8rem;font-weight:700;cursor:pointer;">🔵 Medianoche</button>
+              <button class="theme-btn" onclick="setTheme(this,'galaxy')" style="padding:12px 8px;background:var(--bg-dark);border:1px solid var(--border);border-radius:10px;color:var(--text-muted);font-size:0.8rem;font-weight:700;cursor:pointer;">🌌 Galaxia</button>
+            </div>
+          </div>
+
+          <div class="input-group" style="margin-top:16px;">
+            <label>Tamaño de fuente</label>
+            <div style="display:flex;align-items:center;gap:12px;">
+              <span style="font-size:0.75rem;color:var(--text-muted);">A</span>
+              <input type="range" id="fontSizeRange" min="12" max="18" value="15" style="flex:1;accent-color:var(--accent);" oninput="changeFontSize(this.value)">
+              <span style="font-size:1rem;color:var(--text-muted);">A</span>
+              <span id="fontSizeLabel" style="font-size:0.75rem;color:var(--accent);font-weight:700;min-width:28px;">15px</span>
+            </div>
+          </div>
+
+          <div class="input-group" style="margin-top:16px;">
+            <label>Foto de fondo del chat</label>
+            <label for="bgUpload" style="display:flex;align-items:center;gap:10px;padding:12px 14px;background:var(--bg-dark);border:1px dashed var(--border);border-radius:10px;cursor:pointer;transition:border-color 0.2s;" onmouseover="this.style.borderColor='var(--accent)'" onmouseout="this.style.borderColor='var(--border)'">
+              <span style="font-size:1.2rem;">🖼️</span>
+              <span id="bgFileName" style="font-size:0.85rem;color:var(--text-muted);">Seleccionar imagen...</span>
+            </label>
+            <input type="file" id="bgUpload" accept="image/*" style="display:none;" onchange="changeChatBg(event)">
+            <button onclick="removeChatBg()" style="margin-top:8px;width:100%;padding:9px;background:transparent;border:1px solid var(--border);border-radius:9px;color:var(--text-muted);font-size:0.8rem;cursor:pointer;" onmouseover="this.style.color='var(--danger)';this.style.borderColor='var(--danger)'" onmouseout="this.style.color='var(--text-muted)';this.style.borderColor='var(--border)'">🗑️ Quitar fondo</button>
+          </div>
+        </div>
+
+        <!-- SECURITY -->
+        <div class="section-title" style="margin-bottom:14px;">🔒 Seguridad</div>
+        <div style="background:var(--bg-panel);border:1px solid var(--border);border-radius:16px;padding:20px;margin-bottom:20px;">
+
+          <div class="input-group">
+            <label>Cambiar nombre de usuario (admin)</label>
+            <input type="text" id="cfgNewUsername" placeholder="Nuevo nombre de usuario" style="width:100%;">
+          </div>
+          <button onclick="changeUsername()" style="width:100%;padding:13px;background:linear-gradient(135deg,#00f5a0,#00d4ff);border:none;border-radius:11px;color:var(--bg-deep);font-family:'Orbitron',monospace;font-size:0.78rem;font-weight:700;letter-spacing:1.5px;cursor:pointer;transition:all 0.2s;margin-bottom:16px;" onmouseover="this.style.transform='translateY(-1px)'" onmouseout="this.style.transform='none'">✏️ CAMBIAR USUARIO</button>
+
+          <div class="input-group">
+            <label>Contraseña actual</label>
+            <div style="position:relative;">
+              <input type="password" id="cfgCurrentPass" placeholder="••••••••" style="width:100%;padding-right:44px;">
+              <button onclick="togglePassVis('cfgCurrentPass',this)" style="position:absolute;right:12px;top:50%;transform:translateY(-50%);background:none;border:none;color:var(--text-muted);cursor:pointer;font-size:1rem;">👁️</button>
+            </div>
+          </div>
+
+          <div class="input-group">
+            <label>Nueva contraseña</label>
+            <div style="position:relative;">
+              <input type="password" id="cfgNewPass" placeholder="Mín. 8 caracteres" oninput="checkPassStrength(this.value)" style="width:100%;padding-right:44px;">
+              <button onclick="togglePassVis('cfgNewPass',this)" style="position:absolute;right:12px;top:50%;transform:translateY(-50%);background:none;border:none;color:var(--text-muted);cursor:pointer;font-size:1rem;">👁️</button>
+            </div>
+            <div id="passStrengthBar" style="height:4px;border-radius:2px;background:var(--border);margin-top:8px;overflow:hidden;">
+              <div id="passStrengthFill" style="height:100%;width:0;border-radius:2px;transition:all 0.3s;"></div>
+            </div>
+            <div id="passStrengthLabel" style="font-size:0.7rem;color:var(--text-muted);margin-top:4px;"></div>
+          </div>
+
+          <div class="input-group">
+            <label>Confirmar nueva contraseña</label>
+            <input type="password" id="cfgConfirmPass" placeholder="Repite la nueva contraseña">
+          </div>
+
+          <button onclick="changePassword()" style="width:100%;padding:13px;background:linear-gradient(135deg,#a855f7,#3b82f6);border:none;border-radius:11px;color:white;font-family:'Orbitron',monospace;font-size:0.78rem;font-weight:700;letter-spacing:1.5px;cursor:pointer;transition:all 0.2s;" onmouseover="this.style.transform='translateY(-1px)'" onmouseout="this.style.transform='none'">🔐 ACTUALIZAR CONTRASEÑA</button>
+        </div>
+
+        <!-- NOTIFICATIONS -->
+        <div class="section-title" style="margin-bottom:14px;">🔔 Notificaciones</div>
+        <div style="background:var(--bg-panel);border:1px solid var(--border);border-radius:16px;padding:20px;margin-bottom:20px;">
+          <div id="notifToggles">
+            <!-- toggled by JS -->
+          </div>
+        </div>
+
+        <!-- PRIVACY -->
+        <div class="section-title" style="margin-bottom:14px;">🛡️ Privacidad</div>
+        <div style="background:var(--bg-panel);border:1px solid var(--border);border-radius:16px;padding:20px;margin-bottom:20px;">
+          <div id="privacyToggles">
+            <!-- toggled by JS -->
+          </div>
+        </div>
+
+        <!-- DANGER ZONE -->
+        <div class="section-title" style="margin-bottom:14px;color:var(--danger);">⚠️ Zona de peligro</div>
+        <div style="background:rgba(255,71,87,0.05);border:1px solid rgba(255,71,87,0.25);border-radius:16px;padding:20px;margin-bottom:30px;">
+          <p style="font-size:0.82rem;color:var(--text-muted);margin-bottom:14px;line-height:1.5;">Estas acciones son permanentes e irreversibles.</p>
+          <button onclick="logOut()" style="width:100%;padding:12px;background:transparent;border:1px solid rgba(255,71,87,0.4);border-radius:10px;color:var(--danger);font-family:'Rajdhani',sans-serif;font-size:0.9rem;font-weight:700;cursor:pointer;margin-bottom:10px;transition:all 0.2s;" onmouseover="this.style.background='rgba(255,71,87,0.1)'" onmouseout="this.style.background='transparent'">🚪 Cerrar sesión</button>
+          <button onclick="showToast('❌ Función disponible próximamente')" style="width:100%;padding:12px;background:transparent;border:1px solid rgba(255,71,87,0.4);border-radius:10px;color:var(--danger);font-family:'Rajdhani',sans-serif;font-size:0.9rem;font-weight:700;cursor:pointer;transition:all 0.2s;" onmouseover="this.style.background='rgba(255,71,87,0.1)'" onmouseout="this.style.background='transparent'">🗑️ Eliminar cuenta</button>
+        </div>
+
+      </div>
+    </div>
+    <!-- END SETTINGS PANEL -->
+
+    <!-- DONATE MODAL -->
+    <div class="modal-overlay" id="donateModal" onclick="if(event.target===this)closeDonateModal()">
+      <div class="modal-sheet">
+        <div class="sheet-handle"></div>
+        <div class="sheet-title">❤️ Apoya GamersCom</div>
+        <div class="sheet-desc">Tu donación ayuda a mantener y mejorar la comunidad</div>
+        <div class="amount-grid">
+          <button class="amount-btn" onclick="selectAmount(this,'$2')">$2</button>
+          <button class="amount-btn" onclick="selectAmount(this,'$5')">$5</button>
+          <button class="amount-btn" onclick="selectAmount(this,'$10')">$10</button>
+          <button class="amount-btn" onclick="selectAmount(this,'$25')">$25</button>
+          <button class="amount-btn" onclick="selectAmount(this,'$50')">$50</button>
+          <button class="amount-btn" onclick="selectAmount(this,'Custom')">Otro 💬</button>
+        </div>
+        <button class="btn-donate" id="donateConfirmBtn" onclick="confirmDonate()" style="border-radius:12px;">
+          ❤️ DONAR AHORA
+        </button>
+        <button class="close-btn" onclick="closeDonateModal()">Cancelar</button>
+      </div>
+    </div>
+
+    <!-- WITHDRAW MODAL -->
+    <div class="modal-overlay" id="withdrawModal" style="display:none;" onclick="if(event.target===this)closeWithdrawModal()">
+      <div class="modal-card" style="max-width:340px;">
+        <div style="text-align:center;margin-bottom:18px;">
+          <div style="font-size:2rem;margin-bottom:8px;">💸</div>
+          <div style="font-family:'Orbitron',monospace;font-size:1rem;font-weight:700;color:var(--text-primary);letter-spacing:1px;">RETIRAR FONDOS</div>
+          <div style="font-size:0.8rem;color:var(--text-muted);margin-top:4px;">Balance disponible: <span id="withdrawBalance" style="color:var(--accent);font-weight:700;">$0.00</span></div>
+        </div>
+
+        <div class="input-group" style="margin-bottom:14px;">
+          <label style="font-size:0.72rem;font-weight:700;color:var(--text-secondary);text-transform:uppercase;letter-spacing:1px;display:block;margin-bottom:8px;">Monto a retirar</label>
+          <div style="position:relative;">
+            <span style="position:absolute;left:14px;top:50%;transform:translateY(-50%);color:var(--accent);font-weight:700;">$</span>
+            <input type="number" id="withdrawAmount" placeholder="0.00" min="1" step="0.01"
+              style="width:100%;background:var(--bg-dark);border:1px solid var(--border);border-radius:10px;padding:12px 16px 12px 28px;color:var(--text-primary);font-family:'Rajdhani',sans-serif;font-size:1rem;font-weight:700;outline:none;"
+              onfocus="this.style.borderColor='var(--accent)'" onblur="this.style.borderColor='var(--border)'">
+          </div>
+        </div>
+
+        <div class="input-group" style="margin-bottom:14px;">
+          <label style="font-size:0.72rem;font-weight:700;color:var(--text-secondary);text-transform:uppercase;letter-spacing:1px;display:block;margin-bottom:8px;">Método de retiro</label>
+          <select id="withdrawMethod"
+            style="width:100%;background:var(--bg-dark);border:1px solid var(--border);border-radius:10px;padding:12px 16px;color:var(--text-primary);font-family:'Rajdhani',sans-serif;font-size:0.95rem;font-weight:600;outline:none;cursor:pointer;"
+            onfocus="this.style.borderColor='var(--accent)'" onblur="this.style.borderColor='var(--border)'">
+            <option value="paypal">💳 PayPal</option>
+            <option value="transferencia">🏦 Transferencia bancaria</option>
+            <option value="crypto">₿ Criptomonedas</option>
+          </select>
+        </div>
+
+        <div class="input-group" style="margin-bottom:20px;">
+          <label style="font-size:0.72rem;font-weight:700;color:var(--text-secondary);text-transform:uppercase;letter-spacing:1px;display:block;margin-bottom:8px;">Cuenta / Dirección de destino</label>
+          <input type="text" id="withdrawDestination" placeholder="tu@email.com / cuenta / dirección"
+            style="width:100%;background:var(--bg-dark);border:1px solid var(--border);border-radius:10px;padding:12px 16px;color:var(--text-primary);font-family:'Rajdhani',sans-serif;font-size:0.9rem;font-weight:600;outline:none;"
+            onfocus="this.style.borderColor='var(--accent)'" onblur="this.style.borderColor='var(--border)'">
+        </div>
+
+        <div style="background:rgba(255,107,53,0.08);border:1px solid rgba(255,107,53,0.2);border-radius:10px;padding:10px 14px;margin-bottom:18px;">
+          <div style="font-size:0.75rem;color:var(--accent3);font-weight:600;line-height:1.5;">
+            ⚠️ Los retiros se procesan en <strong>1-3 días hábiles</strong>. Asegúrate de que los datos de destino sean correctos.
+          </div>
+        </div>
+
+        <div style="display:flex;gap:10px;">
+          <button onclick="closeWithdrawModal()" style="flex:1;padding:12px;background:var(--bg-dark);border:1px solid var(--border);border-radius:10px;color:var(--text-muted);font-family:'Rajdhani',sans-serif;font-size:0.9rem;font-weight:700;cursor:pointer;">Cancelar</button>
+          <button onclick="confirmWithdraw()" style="flex:1;padding:12px;background:linear-gradient(135deg,#ff6b35,#ff4757);border:none;border-radius:10px;color:white;font-family:'Orbitron',monospace;font-size:0.72rem;font-weight:700;letter-spacing:1px;cursor:pointer;transition:all 0.2s;" onmouseover="this.style.transform='translateY(-1px)'" onmouseout="this.style.transform='none'">💸 RETIRAR</button>
+        </div>
+      </div>
+    </div>
+
+    <!-- CHANNEL CONTEXT MENU -->
+    <div id="chCtxMenu" class="ch-ctx-menu" style="display:none;">
+      <div class="ch-ctx-item" onclick="ctxCopyLink()">🔗 Copiar enlace</div>
+      <div class="ch-ctx-item" onclick="ctxMute()">🔕 Silenciar canal</div>
+      <div class="ch-ctx-item" onclick="ctxMarkRead()">✅ Marcar como leído</div>
+      <div class="ch-ctx-divider"></div>
+      <div class="ch-ctx-item danger" onclick="ctxDeleteChannel()">🗑️ Eliminar canal</div>
+    </div>
+
+    <!-- DELETE CONFIRM MODAL -->
+    <div class="del-confirm" id="delConfirm">
+      <div class="del-confirm-box">
+        <div class="del-confirm-icon">🗑️</div>
+        <div class="del-confirm-title">ELIMINAR CANAL</div>
+        <div class="del-confirm-desc">¿Estás seguro de que quieres eliminar <span class="del-confirm-name" id="delChannelName">#general</span>? Esta acción no se puede deshacer.</div>
+        <div style="display:flex;gap:10px;">
+          <button onclick="closeDelConfirm()" style="flex:1;padding:12px;background:var(--bg-dark);border:1px solid var(--border);border-radius:10px;color:var(--text-muted);font-family:'Rajdhani',sans-serif;font-size:0.9rem;font-weight:700;cursor:pointer;">Cancelar</button>
+          <button onclick="confirmDeleteChannel()" style="flex:1;padding:12px;background:var(--danger);border:none;border-radius:10px;color:white;font-family:'Orbitron',monospace;font-size:0.75rem;font-weight:700;letter-spacing:1px;cursor:pointer;">ELIMINAR</button>
+        </div>
+      </div>
+    </div>
+
+    <!-- TOAST -->
+    <div class="toast" id="toast"></div>
+
+  </div><!-- end mobile-frame -->
+</div><!-- end app -->
+
+<!-- FIREBASE SDK -->
+<script type="module">
+  import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-app.js";
+  import { getAuth, createUserWithEmailAndPassword, signInWithEmailAndPassword, signOut, onAuthStateChanged, updateProfile } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-auth.js";
+  import { getFirestore, collection, addDoc, onSnapshot, query, orderBy, serverTimestamp, doc, setDoc, getDoc, updateDoc, increment, getDocs } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js";
+  import { getDatabase, ref, set, onValue, onDisconnect, serverTimestamp as rtServerTimestamp } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-database.js";
+
+  const firebaseConfig = {
+    apiKey: "AIzaSyBd12PTAoaaEsERG9HBHuvz8IwsUgyX4C8",
+    authDomain: "gamerscom-91998.firebaseapp.com",
+    databaseURL: "https://gamerscom-91998-default-rtdb.firebaseio.com",
+    projectId: "gamerscom-91998",
+    storageBucket: "gamerscom-91998.firebasestorage.app",
+    messagingSenderId: "774369859898",
+    appId: "1:774369859898:web:ec13992e4f6daeefc79803"
+  };
+
+  const fbApp = initializeApp(firebaseConfig);
+  const auth = getAuth(fbApp);
+  const db = getFirestore(fbApp);
+  const rtdb = getDatabase(fbApp);
+
+  window._fb = { auth, db, rtdb, createUserWithEmailAndPassword, signInWithEmailAndPassword, signOut, onAuthStateChanged, updateProfile, collection, addDoc, onSnapshot, query, orderBy, serverTimestamp, doc, setDoc, getDoc, updateDoc, increment, getDocs, ref, set, onValue, onDisconnect, rtServerTimestamp };
+
+  // Helper: verificar que el usuario está autenticado antes de operar
+  const requireAuth = () => {
+    const user = auth.currentUser;
+    if (!user) throw new Error('Usuario no autenticado');
+    return user;
+  };
+
+  // Presencia online en tiempo real
+  window._fb.trackPresence = (uid, displayName) => {
+    try {
+      requireAuth();
+      const pRef = ref(rtdb, `presence/${uid}`);
+      set(pRef, { name: displayName, online: true, lastSeen: rtServerTimestamp() });
+      onDisconnect(pRef).set({ name: displayName, online: false, lastSeen: rtServerTimestamp() });
+      onValue(ref(rtdb, 'presence'), snap => {
+        let count = 0;
+        snap.forEach(c => { if (c.val().online) count++; });
+        const el = document.getElementById('onlineCount');
+        if (el) el.textContent = count;
+        const statEl = document.getElementById('statOnline');
+        if (statEl) statEl.textContent = count;
+      });
+    } catch(e) { console.warn('trackPresence:', e.message); }
+  };
+
+  // Total de usuarios registrados
+  window._fb.listenUserCount = (callback) => {
+    try {
+      requireAuth();
+      onValue(ref(rtdb, 'presence'), snap => { callback(snap.size || 0); });
+    } catch(e) { console.warn('listenUserCount:', e.message); }
+  };
+
+  // Escuchar mensajes en tiempo real
+  window._fb.listenMessages = (channelId, callback) => {
+    try {
+      requireAuth();
+      const q = query(collection(db, `channels/${channelId}/messages`), orderBy('timestamp', 'asc'));
+      return onSnapshot(q, snap => {
+        const msgs = [];
+        snap.forEach(d => msgs.push({ id: d.id, ...d.data() }));
+        callback(msgs);
+      }, err => { console.warn('listenMessages error:', err.message); callback([]); });
+    } catch(e) { console.warn('listenMessages:', e.message); return () => {}; }
+  };
+
+  // Enviar mensaje real
+  window._fb.sendMessage = async (channelId, text, author, role, avatar) => {
+    requireAuth();
+    await addDoc(collection(db, `channels/${channelId}/messages`), {
+      text, author, role, avatar, timestamp: serverTimestamp()
+    });
+  };
+
+  // Guardar donación
+  window._fb.saveDonation = async (amount, userName) => {
+    requireAuth();
+    const num = parseFloat(amount.replace('$','')) || 0;
+    await addDoc(collection(db, 'donations'), { amount: num, user: userName, timestamp: serverTimestamp() });
+    await setDoc(doc(db, 'stats', 'totals'), { donations: increment(num) }, { merge: true });
+    showToast(`✅ ¡Gracias por donar ${amount}! 🙏`);
+  };
+
+  // Obtener estadísticas de donaciones para admin
+  window._fb.getDonationStats = async () => {
+    try {
+      requireAuth();
+      const statsDoc = await getDoc(doc(db, 'stats', 'totals'));
+      const donSnap = await getDocs(collection(db, 'donations'));
+      const list = [];
+      donSnap.forEach(d => list.push(d.data()));
+      list.sort((a,b) => (b.timestamp?.seconds||0) - (a.timestamp?.seconds||0));
+      return { total: statsDoc.exists() ? (statsDoc.data().donations || 0) : 0, list: list.slice(0,5) };
+    } catch(e) { return { total: 0, list: [] }; }
+  };
+
+  // Detectar si la sesión sigue activa al recargar
+  onAuthStateChanged(auth, user => {
+    if (!user) {
+      // Asegurarse de mostrar login si no hay sesión
+      const main = document.getElementById('mainScreen');
+      const login = document.getElementById('loginScreen');
+      if (main && main.style.display !== 'none') {
+        main.style.display = 'none';
+        if (login) { login.style.display = 'flex'; login.classList.add('active'); }
+      }
+    }
+  });
+
+  console.log('✅ Firebase GamersCom conectado y seguro');
+</script>
+
+<script>
+  let isAdmin = false;
+  let selectedAmount = '$5';
+  let membersVisible = false;
+  let currentChannel = 'general';
+  let unsubscribeMessages = null; // For cleanup of real-time listener
+
+  // ===== CREDENCIALES ADMIN (se actualizan con cambio de contraseña) =====
+  let adminUser = 'admin';
+  let adminPass = 'Locoland1982';
+  let channels = [
+    { category: '📢 Información', items: [
+      { id:'general', label:'general', icon:'#', badge:12, type:'text' },
+      { id:'anuncios', label:'anuncios', icon:'#', type:'text' },
+      { id:'reglas', label:'reglas', icon:'#', type:'text' },
+    ]},
+    { category: '🎮 Gaming', items: [
+      { id:'fps', label:'fps-talk', icon:'#', badge:5, type:'text' },
+      { id:'rpg', label:'rpg-lounge', icon:'#', type:'text' },
+      { id:'memes', label:'gamer-memes', icon:'#', type:'text' },
+      { id:'clips', label:'mejores-clips', icon:'#', type:'text' },
+      { id:'lfg', label:'buscar-equipo', icon:'#', type:'text' },
+    ]},
+    { category: '🎙️ Voz & Video', items: [
+      { id:'sala-general', label:'Sala General', icon:'🔊', count:'3', type:'voice' },
+      { id:'pro-gaming', label:'Pro Gaming', icon:'🔊', count:'0', type:'voice' },
+      { id:'watch-party', label:'Watch Party', icon:'🎬', count:'5', type:'voice' },
+      { id:'privado', label:'VIP Lounge', icon:'🔒', count:'0', type:'voice' },
+    ]},
+    { category: '💬 Social', items: [
+      { id:'off-topic', label:'off-topic', icon:'#', type:'text' },
+      { id:'musica', label:'música 🎵', icon:'#', type:'text' },
+      { id:'arte', label:'arte-fanart', icon:'#', type:'text' },
+    ]},
+  ];
+
+  let ctxTargetChannel = null;
+
+  let collapsedCats = {}; // track which categories are collapsed
+
+  function renderChannels() {
+    const list = document.getElementById('channelList');
+    list.innerHTML = channels.map((cat, catIdx) => {
+      const isCollapsed = collapsedCats[catIdx] || false;
+      return `
+        <div class="channel-category" onclick="toggleCategory(${catIdx})">
+          ${cat.category}
+          <span class="cat-arrow ${isCollapsed ? 'collapsed' : ''}">▼</span>
+        </div>
+        <div class="cat-items ${isCollapsed ? 'collapsed' : ''}" id="cat-items-${catIdx}">
+          ${cat.items.map(ch => `
+            <div class="channel-item ${ch.id === currentChannel ? 'active' : ''}"
+              id="ch-${ch.id}"
+              onclick="${ch.type==='voice' ? `joinVoice('${ch.id}')` : `switchChannel('${ch.id}')`}"
+              oncontextmenu="openChCtx(event,'${ch.id}')"
+              ontouchstart="startLongPress(event,'${ch.id}')"
+              ontouchend="cancelLongPress()"
+              ontouchmove="cancelLongPress()"
+              style="position:relative;">
+              <span class="ch-icon">${ch.icon}</span>
+              <span style="flex:1;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;">${ch.label}</span>
+              ${ch.badge ? `<span class="ch-badge">${ch.badge}</span>` : ''}
+              ${ch.count !== undefined ? `<span style="font-size:0.65rem;color:${ch.count==='0'?'var(--text-muted)':'var(--accent)'};margin-left:auto;">${ch.count}</span>` : ''}
+              <button class="ch-delete-btn" onclick="event.stopPropagation();openDelConfirm('${ch.id}')" title="Eliminar canal"
+                style="display:none;position:absolute;right:6px;top:50%;transform:translateY(-50%);background:rgba(255,71,87,0.15);border:none;border-radius:5px;color:var(--danger);font-size:0.75rem;padding:3px 6px;cursor:pointer;">🗑️</button>
+            </div>
+          `).join('')}
+        </div>
+      `;
+    }).join('');
+
+    // Show delete btn on hover (desktop)
+    list.querySelectorAll('.channel-item').forEach(el => {
+      el.addEventListener('mouseenter', () => { const btn = el.querySelector('.ch-delete-btn'); if(btn) btn.style.display='block'; });
+      el.addEventListener('mouseleave', () => { const btn = el.querySelector('.ch-delete-btn'); if(btn) btn.style.display='none'; });
+    });
+  }
+
+  function toggleCategory(catIdx) {
+    collapsedCats[catIdx] = !collapsedCats[catIdx];
+    renderChannels();
+  }
+
+  // Long press for mobile
+  let longPressTimer = null;
+  function startLongPress(e, chId) {
+    longPressTimer = setTimeout(() => { openChCtx(e, chId); }, 500);
+  }
+  function cancelLongPress() { clearTimeout(longPressTimer); }
+
+  // Context menu
+  function openChCtx(e, chId) {
+    e.preventDefault();
+    e.stopPropagation();
+    ctxTargetChannel = chId;
+    const menu = document.getElementById('chCtxMenu');
+    menu.style.display = 'block';
+    const frame = document.querySelector('.mobile-frame').getBoundingClientRect();
+    let x = e.clientX || (e.touches && e.touches[0] ? e.touches[0].clientX : frame.left + 100);
+    let y = e.clientY || (e.touches && e.touches[0] ? e.touches[0].clientY : frame.top + 200);
+    // Keep within frame
+    x = Math.min(x, frame.right - 190);
+    y = Math.min(y, frame.bottom - 180);
+    menu.style.left = x + 'px';
+    menu.style.top = y + 'px';
+    setTimeout(() => document.addEventListener('click', closeChCtx, { once: true }), 10);
+  }
+
+  function closeChCtx() {
+    document.getElementById('chCtxMenu').style.display = 'none';
+  }
+
+  function ctxCopyLink() { closeChCtx(); showToast('🔗 Enlace copiado al portapapeles'); }
+  function ctxMute() { closeChCtx(); showToast('🔕 Canal silenciado'); }
+  function ctxMarkRead() { closeChCtx(); showToast('✅ Marcado como leído'); }
+  function ctxDeleteChannel() { closeChCtx(); openDelConfirm(ctxTargetChannel); }
+
+  function openDelConfirm(chId) {
+    ctxTargetChannel = chId;
+    // Find channel label
+    let label = chId;
+    channels.forEach(cat => cat.items.forEach(ch => { if(ch.id === chId) label = ch.label; }));
+    document.getElementById('delChannelName').textContent = '#' + label;
+    document.getElementById('delConfirm').classList.add('show');
+  }
+
+  function closeDelConfirm() {
+    document.getElementById('delConfirm').classList.remove('show');
+  }
+
+  function confirmDeleteChannel() {
+    const chId = ctxTargetChannel;
+    // Remove from data
+    channels.forEach(cat => {
+      cat.items = cat.items.filter(ch => ch.id !== chId);
+    });
+    // Remove empty categories
+    channels = channels.filter(cat => cat.items.length > 0);
+    closeDelConfirm();
+    // If deleted active channel, switch to general
+    if (currentChannel === chId) {
+      currentChannel = 'general';
+      // if general was deleted too, pick first available
+      let found = false;
+      channels.forEach(cat => cat.items.forEach(ch => { if(ch.id === 'general') found = true; }));
+      if (!found && channels.length > 0 && channels[0].items.length > 0) {
+        currentChannel = channels[0].items[0].id;
+      }
+      document.getElementById('chatHeaderName').textContent = currentChannel;
+      renderMessages(currentChannel);
+    }
+    renderChannels();
+    saveToStorage();
+    showToast('🗑️ Canal eliminado');
+  }
+
+  // ===== ALMACENAMIENTO PERMANENTE =====
+  function saveToStorage() {
+    try {
+      const data = {
+        channels,
+        accent: getComputedStyle(document.documentElement).getPropertyValue('--accent').trim(),
+        bgDeep: getComputedStyle(document.documentElement).getPropertyValue('--bg-deep').trim(),
+        bgDark: getComputedStyle(document.documentElement).getPropertyValue('--bg-dark').trim(),
+        bgMid: getComputedStyle(document.documentElement).getPropertyValue('--bg-mid').trim(),
+        bgPanel: getComputedStyle(document.documentElement).getPropertyValue('--bg-panel').trim(),
+        bgCard: getComputedStyle(document.documentElement).getPropertyValue('--bg-card').trim(),
+        fontSize: document.getElementById('fontSizeRange') ? document.getElementById('fontSizeRange').value : '15',
+      };
+      localStorage.setItem('gamerscom_settings', JSON.stringify(data));
+    } catch(e) {}
+  }
+
+  function loadFromStorage() {
+    try {
+      const raw = localStorage.getItem('gamerscom_settings');
+      if (!raw) return;
+      const data = JSON.parse(raw);
+      // NUNCA cargar usuario/contraseña del storage — siempre usar los del código
+      if (data.channels && data.channels.length > 0) channels = data.channels;
+      if (data.accent) document.documentElement.style.setProperty('--accent', data.accent);
+      if (data.bgDeep) document.documentElement.style.setProperty('--bg-deep', data.bgDeep);
+      if (data.bgDark) document.documentElement.style.setProperty('--bg-dark', data.bgDark);
+      if (data.bgMid) document.documentElement.style.setProperty('--bg-mid', data.bgMid);
+      if (data.bgPanel) document.documentElement.style.setProperty('--bg-panel', data.bgPanel);
+      if (data.bgCard) document.documentElement.style.setProperty('--bg-card', data.bgCard);
+      if (data.fontSize && document.getElementById('fontSizeRange')) {
+        document.getElementById('fontSizeRange').value = data.fontSize;
+        document.querySelectorAll('.msg-text').forEach(el => el.style.fontSize = data.fontSize + 'px');
+      }
+    } catch(e) {}
+  }
+
+  // Limpiar credenciales viejas del storage si existen
+  try {
+    const raw = localStorage.getItem('gamerscom_settings');
+    if (raw) {
+      const d = JSON.parse(raw);
+      if (d.adminUser || d.adminPass) {
+        delete d.adminUser; delete d.adminPass;
+        localStorage.setItem('gamerscom_settings', JSON.stringify(d));
+      }
+    }
+  } catch(e) {}
+
+  // Load settings immediately on page load
+  loadFromStorage();
+
+  const messages = {
+    general: [
+      { author: 'Admin_GC', role: 'admin', avatar: '👑', color: 'linear-gradient(135deg,#ff6b35,#ff4757)', time: 'Hoy a las 9:00', text: '¡Bienvenidos a GamersCom! La mejor comunidad gamer 🎮🔥', reactions: [{ emoji: '🔥', count: 24 }, { emoji: '❤️', count: 18 }] },
+      { author: 'SniperX99', role: 'mod', avatar: 'S', color: 'linear-gradient(135deg,#00f5a0,#00d4ff)', time: 'Hoy a las 9:05', text: 'Qué épico este servidor! Alguien para jugar Valorant? 🔫' },
+      { author: 'Valkyrie_Pro', role: 'user', avatar: 'V', color: 'linear-gradient(135deg,#a855f7,#3b82f6)', time: 'Hoy a las 9:12', text: 'Yo entro! Rank actual: Diamante 💎 Buscando duos', reactions: [{ emoji: '💎', count: 7 }] },
+      { author: 'DarkWolf_7', role: 'user', avatar: 'D', color: 'linear-gradient(135deg,#f59e0b,#ef4444)', time: 'Hoy a las 9:18', text: '¿Alguien vió los clips de ayer? Ese headshot fue increíble 😱' },
+      { author: 'PixelQueen', role: 'user', avatar: 'P', color: 'linear-gradient(135deg,#ec4899,#a855f7)', time: 'Hoy a las 9:25', text: 'Nuevo video en mi canal! Link en <span class="mention">#mejores-clips</span> 🎬✨', reactions: [{ emoji: '👀', count: 15 }, { emoji: '🎬', count: 9 }] },
+      { author: 'NightOwl_GG', role: 'user', avatar: 'N', color: 'linear-gradient(135deg,#06b6d4,#3b82f6)', time: 'Hoy a las 9:31', text: 'Torneo este viernes! <span class="mention">@todos</span> revisen <span class="mention">#anuncios</span> 🏆' },
+    ],
+    fps: [
+      { author: 'SniperX99', role: 'mod', avatar: 'S', color: 'linear-gradient(135deg,#00f5a0,#00d4ff)', time: 'Hoy a las 8:00', text: 'Hilo de discusión: ¿CS2 o Valorant? 🔫 Comenten abajo!', reactions: [{ emoji: '🔫', count: 31 }] },
+      { author: 'DarkWolf_7', role: 'user', avatar: 'D', color: 'linear-gradient(135deg,#f59e0b,#ef4444)', time: 'Hoy a las 8:15', text: 'Valorant sin duda. Mejores habilidades y meta más variado 💪' },
+      { author: 'ThunderBolt', role: 'user', avatar: 'T', color: 'linear-gradient(135deg,#6366f1,#8b5cf6)', time: 'Hoy a las 8:22', text: 'CS2 tiene mejor mecánica pura de disparo. No hay debate 😤', reactions: [{ emoji: '😤', count: 12 }] },
+    ],
+    anuncios: [
+      { author: 'Admin_GC', role: 'admin', avatar: '👑', color: 'linear-gradient(135deg,#ff6b35,#ff4757)', time: 'Hoy a las 8:00', text: '📢 TORNEO DE VALORANT este Viernes 7PM hora MX. Premios: $50 primer lugar! Inscríbete en DMs.', reactions: [{ emoji: '🏆', count: 45 }, { emoji: '🔥', count: 38 }] },
+      { author: 'Admin_GC', role: 'admin', avatar: '👑', color: 'linear-gradient(135deg,#ff6b35,#ff4757)', time: 'Ayer', text: '🎉 ¡Alcanzamos 200 miembros! Gracias a toda la comunidad ❤️' },
+    ],
+  };
+
+  function getMessages(ch) {
+    return messages[ch] || [{ author: 'Admin_GC', role: 'admin', avatar: '👑', color: 'linear-gradient(135deg,#ff6b35,#ff4757)', time: 'Hoy', text: `Bienvenido a #${ch} 🎮` }];
+  }
+
+  function renderMessages(ch) {
+    const container = document.getElementById('chatMessages');
+    const msgs = getMessages(ch);
+    container.innerHTML = msgs.map(m => `
+      <div class="msg-group">
+        <div class="msg-avatar" style="background:${m.color}">${m.avatar}</div>
+        <div class="msg-content">
+          <div class="msg-meta">
+            <span class="msg-author ${m.role==='admin'?'admin':m.role==='mod'?'mod':''}">${m.author}</span>
+            ${m.role==='admin'?'<span class="role-badge admin-badge">ADMIN</span>':m.role==='mod'?'<span class="role-badge mod-badge">MOD</span>':''}
+            <span class="msg-time">${m.time}</span>
+          </div>
+          <div class="msg-text">${m.text}</div>
+          ${m.reactions ? `<div class="msg-reactions">${m.reactions.map(r=>`<div class="reaction">${r.emoji} <span class="r-count">${r.count}</span></div>`).join('')}</div>` : ''}
+        </div>
+      </div>
+    `).join('');
+    container.scrollTop = container.scrollHeight;
+  }
+
+  function doLogin() {
+    const userInput = document.getElementById('loginUser').value.trim();
+    const passInput = document.getElementById('loginPass').value.trim();
+    if (!userInput || !passInput) { showToast('⚠️ Completa usuario y contraseña'); return; }
+
+    // Check if admin credentials
+    const tryAdmin = (userInput.toLowerCase() === adminUser.toLowerCase() && passInput === adminPass);
+
+    // Build email for Firebase (use username@gamerscom.app)
+    const email = userInput.includes('@') ? userInput : `${userInput}@gamerscom.app`;
+
+    showToast('🔄 Iniciando sesión...');
+
+    if (!window._fb) {
+      // Firebase not loaded yet, fallback to local
+      finishLogin(userInput, tryAdmin);
+      return;
+    }
+
+    const { auth, signInWithEmailAndPassword, createUserWithEmailAndPassword, updateProfile } = window._fb;
+
+    signInWithEmailAndPassword(auth, email, passInput)
+      .then(cred => {
+        finishLogin(cred.user.displayName || userInput, tryAdmin, cred.user.uid);
+      })
+      .catch(err => {
+        if (err.code === 'auth/user-not-found' || err.code === 'auth/invalid-credential' || err.code === 'auth/invalid-email') {
+          // Auto-register new user
+          createUserWithEmailAndPassword(auth, email, passInput)
+            .then(cred => {
+              updateProfile(cred.user, { displayName: userInput });
+              finishLogin(userInput, tryAdmin, cred.user.uid);
+            })
+            .catch(() => finishLogin(userInput, tryAdmin));
+        } else {
+          showToast('❌ Contraseña incorrecta');
+        }
+      });
+  }
+
+  function finishLogin(userName, adminMode, uid = null) {
+    isAdmin = adminMode;
+    const displayName = adminMode ? 'Admin_GC' : userName;
+
+    document.getElementById('userAvatarSide').textContent = adminMode ? '👑' : userName[0].toUpperCase();
+    document.getElementById('userNameSide').textContent = displayName;
+    document.getElementById('userTagSide').textContent = adminMode ? '#0001 · Admin' : '#' + Math.floor(1000+Math.random()*9000);
+    document.getElementById('voiceYouName').textContent = `Tú${adminMode?' (Admin)':''}`;
+    document.getElementById('participantAdminName').textContent = adminMode ? 'Admin_GC (Tú)' : 'Admin_GC';
+
+    if (adminMode) {
+      document.getElementById('adminNavBtn').style.display = 'flex';
+      document.getElementById('profileNavBtn').style.display = 'none';
+    } else {
+      document.getElementById('adminNavBtn').style.display = 'none';
+      document.getElementById('profileNavBtn').style.display = 'flex';
+    }
+
+    document.getElementById('loginScreen').classList.remove('active');
+    document.getElementById('loginScreen').style.display = 'none';
+    document.getElementById('mainScreen').style.display = 'flex';
+    renderChannels();
+
+    // Start real-time features
+    if (window._fb && uid) {
+      window._fb.trackPresence(uid, displayName);
+      window._fb.listenUserCount(count => {
+        const el = document.getElementById('statMembers');
+        if (el) el.textContent = count;
+      });
+    }
+
+    // Load real messages
+    loadFirebaseMessages('general');
+    showToast(adminMode ? '🛡️ ¡Bienvenido, Administrador!' : `🎮 ¡Bienvenido, ${userName}!`);
+  }
+
+  // ===== FIREBASE REAL-TIME MESSAGES =====
+  function loadFirebaseMessages(channelId) {
+    if (unsubscribeMessages) { unsubscribeMessages(); unsubscribeMessages = null; }
+    if (!window._fb) { renderMessages(channelId); return; }
+    unsubscribeMessages = window._fb.listenMessages(channelId, (msgs) => {
+      const container = document.getElementById('chatMessages');
+      if (msgs.length === 0) { renderMessages(channelId); return; }
+      container.innerHTML = msgs.map(m => {
+        const time = m.timestamp?.toDate ? m.timestamp.toDate().toLocaleTimeString('es-MX', {hour:'2-digit',minute:'2-digit'}) : 'Ahora';
+        const avatarChar = m.avatar || m.author?.[0]?.toUpperCase() || '?';
+        const avatarColor = m.role==='admin' ? 'linear-gradient(135deg,#ff6b35,#ff4757)' : m.role==='mod' ? 'linear-gradient(135deg,#00f5a0,#00d4ff)' : 'linear-gradient(135deg,#a855f7,#3b82f6)';
+        return `
+          <div class="msg-group">
+            <div class="msg-avatar" style="background:${avatarColor}">${avatarChar}</div>
+            <div class="msg-content">
+              <div class="msg-meta">
+                <span class="msg-author ${m.role==='admin'?'admin':m.role==='mod'?'mod':''}">${m.author}</span>
+                ${m.role==='admin'?'<span class="role-badge admin-badge">ADMIN</span>':m.role==='mod'?'<span class="role-badge mod-badge">MOD</span>':''}
+                <span class="msg-time">${time}</span>
+              </div>
+              <div class="msg-text">${m.text}</div>
+            </div>
+          </div>`;
+      }).join('');
+      container.scrollTop = container.scrollHeight;
+    });
+  }
+
+  function switchChannel(ch) {
+    currentChannel = ch;
+    document.getElementById('chatHeaderName').textContent = ch.replace('-',' ');
+    document.getElementById('msgInput').placeholder = `Escribe en #${ch}...`;
+    loadFirebaseMessages(ch);
+    renderChannels();
+  }
+
+  function sendMsg() {
+    const input = document.getElementById('msgInput');
+    const text = input.value.trim();
+    if (!text) return;
+    const authorName = document.getElementById('userNameSide').textContent;
+    const role = isAdmin ? 'admin' : 'user';
+    const avatar = isAdmin ? '👑' : authorName[0].toUpperCase();
+    input.value = '';
+    if (window._fb) {
+      window._fb.sendMessage(currentChannel, text, authorName, role, avatar)
+        .catch(() => showToast('⚠️ Error al enviar mensaje'));
+    } else {
+      if (!messages[currentChannel]) messages[currentChannel] = [];
+      messages[currentChannel].push({ author: authorName, role, avatar, color: isAdmin ? 'linear-gradient(135deg,#ff6b35,#ff4757)' : 'linear-gradient(135deg,#a855f7,#3b82f6)', time: 'Ahora', text });
+      renderMessages(currentChannel);
+    }
+  }
+
+  function joinVoice(ch) {
+    document.getElementById('voiceChannelName').textContent = `🔊 ${ch.replace('-',' ')}`;
+    document.getElementById('voiceOverlay').classList.add('show');
+  }
+
+  function closeVoice() { document.getElementById('voiceOverlay').classList.remove('show'); }
+
+  function showAdminPanel() {
+    if (!isAdmin) { showToast('🚫 Acceso solo para Administrador'); return; }
+    document.getElementById('adminPanel').classList.add('show');
+    // Load real donation stats
+    if (window._fb) {
+      window._fb.getDonationStats().then(stats => {
+        const totalEl = document.getElementById('adminEarningsTotal');
+        if (totalEl) totalEl.textContent = `$${stats.total.toFixed(2)}`;
+        const donEl = document.getElementById('adminDonationsAmount');
+        if (donEl) donEl.textContent = `$${stats.total.toFixed(2)}`;
+        // Render recent donations
+        const listEl = document.getElementById('recentDonationsList');
+        if (listEl && stats.list.length > 0) {
+          const colors = ['linear-gradient(135deg,#00f5a0,#00d4ff)','linear-gradient(135deg,#ec4899,#a855f7)','linear-gradient(135deg,#f59e0b,#ef4444)','linear-gradient(135deg,#6366f1,#8b5cf6)','linear-gradient(135deg,#10b981,#059669)'];
+          listEl.innerHTML = stats.list.map((d, i) => `
+            <div class="donation-row">
+              <div class="donation-avatar" style="background:${colors[i%colors.length]}">${d.user?.[0]?.toUpperCase()||'?'}</div>
+              <div class="donation-info">
+                <div class="donation-name">${d.user || 'Anónimo'}</div>
+                <div class="donation-time">${d.timestamp?.toDate ? d.timestamp.toDate().toLocaleDateString('es-MX') : 'Reciente'}</div>
+              </div>
+              <div class="donation-amount">$${(d.amount||0).toFixed(2)}</div>
+            </div>
+          `).join('');
+        }
+      });
+    }
+  }
+
+  function closeAdminPanel() { document.getElementById('adminPanel').classList.remove('show'); }
+
+  function showDonateModal() { document.getElementById('donateModal').classList.add('show'); }
+  function closeDonateModal() { document.getElementById('donateModal').classList.remove('show'); }
+
+  function selectAmount(btn, amount) {
+    document.querySelectorAll('.amount-btn').forEach(b => b.classList.remove('selected'));
+    btn.classList.add('selected');
+    selectedAmount = amount;
+    document.getElementById('donateConfirmBtn').textContent = `❤️ DONAR ${amount}`;
+  }
+
+  function confirmDonate() {
+    closeDonateModal();
+    const userName = document.getElementById('userNameSide').textContent || 'Anónimo';
+    if (window._fb) {
+      window._fb.saveDonation(selectedAmount, userName);
+    } else {
+      showToast(`❤️ ¡Gracias por donar ${selectedAmount}! 🙏`);
+    }
+  }
+
+  function toggleMembers() {
+    membersVisible = !membersVisible;
+    document.getElementById('membersPanel').style.display = membersVisible ? 'flex' : 'none';
+  }
+
+  function logOut() {
+    if (window._fb) window._fb.signOut(window._fb.auth).catch(()=>{});
+    if (unsubscribeMessages) { unsubscribeMessages(); unsubscribeMessages = null; }
+    isAdmin = false;
+    currentChannel = 'general';
+    document.getElementById('mainScreen').style.display = 'none';
+    document.getElementById('loginScreen').style.display = 'flex';
+    document.getElementById('loginScreen').classList.add('active');
+    document.getElementById('loginUser').value = '';
+    document.getElementById('loginPass').value = '';
+    document.getElementById('settingsPanel').classList.remove('show');
+    showToast('👋 Sesión cerrada correctamente');
+  }
+
+  // ===== RETIRO DE FONDOS =====
+  function showWithdrawModal() {
+    // Show current balance
+    const balance = document.getElementById('adminEarningsTotal')?.textContent || '$0.00';
+    document.getElementById('withdrawBalance').textContent = balance;
+    document.getElementById('withdrawAmount').value = '';
+    document.getElementById('withdrawDestination').value = '';
+    document.getElementById('withdrawModal').style.display = 'flex';
+  }
+
+  function closeWithdrawModal() {
+    document.getElementById('withdrawModal').style.display = 'none';
+  }
+
+  async function confirmWithdraw() {
+    const amount = document.getElementById('withdrawAmount').value;
+    const method = document.getElementById('withdrawMethod').value;
+    const destination = document.getElementById('withdrawDestination').value.trim();
+    const balanceText = document.getElementById('withdrawBalance').textContent;
+    const balance = parseFloat(balanceText.replace('$','')) || 0;
+
+    if (!amount || parseFloat(amount) <= 0) { showToast('⚠️ Ingresa un monto válido'); return; }
+    if (parseFloat(amount) > balance) { showToast('❌ Monto mayor al balance disponible'); return; }
+    if (!destination) { showToast('⚠️ Ingresa la cuenta de destino'); return; }
+
+    const methodNames = { paypal: 'PayPal', transferencia: 'Transferencia bancaria', crypto: 'Criptomonedas' };
+
+    // Save withdrawal to Firebase
+    if (window._fb) {
+      try {
+        await window._fb.addDoc(window._fb.collection(window._fb.db, 'withdrawals'), {
+          amount: parseFloat(amount),
+          method,
+          destination,
+          status: 'pending',
+          timestamp: window._fb.serverTimestamp()
+        });
+        // Subtract from balance
+        await window._fb.setDoc(window._fb.doc(window._fb.db, 'stats', 'totals'), {
+          donations: window._fb.increment(-parseFloat(amount))
+        }, { merge: true });
+        // Update UI balance
+        const newBalance = (balance - parseFloat(amount)).toFixed(2);
+        document.getElementById('adminEarningsTotal').textContent = `$${newBalance}`;
+        document.getElementById('adminDonationsAmount').textContent = `$${newBalance}`;
+      } catch(e) { console.warn('withdraw error:', e); }
+    }
+
+    closeWithdrawModal();
+    showToast(`💸 Retiro de $${parseFloat(amount).toFixed(2)} por ${methodNames[method]} iniciado`);
+  }
+    const panel = document.querySelector('.channel-panel');
+    const btn = document.getElementById('sidebarToggleBtn');
+    panel.classList.toggle('collapsed');
+    btn.textContent = panel.classList.contains('collapsed') ? '▶' : '☰';
+    btn.style.color = panel.classList.contains('collapsed') ? 'var(--accent)' : '';
+  }
+
+  function toggleMic(btn) { btn.textContent = btn.textContent === '🎤' ? '🔇' : '🎤'; showToast(btn.textContent === '🎤' ? '🎤 Micrófono activado' : '🔇 Micrófono silenciado'); }
+  function toggleAudio(btn) { btn.textContent = btn.textContent === '🔊' ? '🔈' : '🔊'; }
+
+  function toggleVCMic(btn) { btn.classList.toggle('off'); btn.textContent = btn.classList.contains('off') ? '🔇' : '🎤'; }
+  function toggleVCCam(btn) { btn.classList.toggle('off'); btn.textContent = btn.classList.contains('off') ? '📷' : '📹'; }
+
+  function showSettings() { showSettingsPanel(); }
+
+  // ===== SETTINGS PANEL =====
+  function showSettingsPanel() {
+    const p = document.getElementById('settingsPanel');
+    p.classList.add('show');
+    // Populate fields with current data
+    const name = document.getElementById('userNameSide').textContent;
+    document.getElementById('settingsUserName').textContent = name;
+    document.getElementById('settingsUserTag').textContent = document.getElementById('userTagSide').textContent;
+    document.getElementById('cfgDisplayName').value = name;
+    // Render toggles
+    renderToggles();
+  }
+
+  function closeSettingsPanel() {
+    document.getElementById('settingsPanel').classList.remove('show');
+  }
+
+  function saveProfile() {
+    const name = document.getElementById('cfgDisplayName').value.trim();
+    if (name) {
+      if (isAdmin) adminUser = name;
+      document.getElementById('userNameSide').textContent = name;
+      document.getElementById('settingsUserName').textContent = name;
+    }
+    saveToStorage();
+    showToast('✅ Perfil guardado correctamente');
+  }
+
+  function previewName(val) {
+    if (val.trim()) document.getElementById('settingsUserName').textContent = val;
+  }
+
+  function changeAvatar(e) {
+    const file = e.target.files[0];
+    if (!file) return;
+    const reader = new FileReader();
+    reader.onload = ev => {
+      const av = document.getElementById('settingsAvatar');
+      av.style.background = 'none';
+      av.innerHTML = `<img src="${ev.target.result}" style="width:100%;height:100%;border-radius:50%;object-fit:cover;">`;
+      document.getElementById('userAvatarSide').innerHTML = `<img src="${ev.target.result}" style="width:100%;height:100%;border-radius:50%;object-fit:cover;">`;
+      showToast('📷 Foto de perfil actualizada');
+    };
+    reader.readAsDataURL(file);
+  }
+
+  function changeChatBg(e) {
+    const file = e.target.files[0];
+    if (!file) return;
+    const reader = new FileReader();
+    reader.onload = ev => {
+      document.getElementById('chatMessages').style.backgroundImage = `url(${ev.target.result})`;
+      document.getElementById('chatMessages').style.backgroundSize = 'cover';
+      document.getElementById('chatMessages').style.backgroundPosition = 'center';
+      document.getElementById('bgFileName').textContent = file.name;
+      showToast('🖼️ Fondo del chat actualizado');
+    };
+    reader.readAsDataURL(file);
+  }
+
+  function removeChatBg() {
+    document.getElementById('chatMessages').style.backgroundImage = '';
+    document.getElementById('bgFileName').textContent = 'Seleccionar imagen...';
+    showToast('🗑️ Fondo eliminado');
+  }
+
+  function setAccent(el, color) {
+    document.querySelectorAll('.color-swatch').forEach(s => { s.style.border = '3px solid transparent'; s.style.boxShadow = 'none'; });
+    el.style.border = '3px solid white';
+    el.style.boxShadow = `0 0 12px ${color}99`;
+    document.documentElement.style.setProperty('--accent', color);
+    saveToStorage();
+    showToast('🎨 Color de acento actualizado');
+  }
+
+  function setAccentCustom(color) {
+    document.documentElement.style.setProperty('--accent', color);
+    showToast('🎨 Color personalizado aplicado');
+  }
+
+  const themes = {
+    dark:     { '--bg-deep':'#0a0b0f', '--bg-dark':'#0f1117', '--bg-mid':'#151821', '--bg-panel':'#1a1f2e', '--bg-card':'#1e2536' },
+    darker:   { '--bg-deep':'#050507', '--bg-dark':'#080a0e', '--bg-mid':'#0d1018', '--bg-panel':'#111520', '--bg-card':'#151a28' },
+    midnight: { '--bg-deep':'#050d1a', '--bg-dark':'#071224', '--bg-mid':'#0a1830', '--bg-panel':'#0e1f3a', '--bg-card':'#122444' },
+    galaxy:   { '--bg-deep':'#0d0520', '--bg-dark':'#110828', '--bg-mid':'#160d32', '--bg-panel':'#1b103c', '--bg-card':'#1f1446' },
+  };
+
+  function setTheme(el, name) {
+    document.querySelectorAll('.theme-btn').forEach(b => { b.style.background='var(--bg-dark)'; b.style.borderColor='var(--border)'; b.style.color='var(--text-muted)'; });
+    el.style.background = 'rgba(0,245,160,0.08)';
+    el.style.borderColor = 'var(--accent)';
+    el.style.color = 'var(--accent)';
+    const t = themes[name];
+    if (t) Object.entries(t).forEach(([k,v]) => document.documentElement.style.setProperty(k, v));
+    saveToStorage();
+    showToast('🌙 Tema aplicado: ' + el.textContent.trim());
+  }
+
+  function changeFontSize(val) {
+    document.getElementById('fontSizeLabel').textContent = val + 'px';
+    document.querySelectorAll('.msg-text').forEach(el => el.style.fontSize = val + 'px');
+    saveToStorage();
+  }
+
+  function setStatus(el, status, color) {
+    document.querySelectorAll('.status-opt').forEach(b => { b.style.background='var(--bg-dark)'; b.style.borderColor='var(--border)'; b.style.color='var(--text-muted)'; });
+    el.style.background = `rgba(${hexToRgb(color)},0.1)`;
+    el.style.borderColor = color;
+    el.style.color = color;
+    showToast('✅ Estado actualizado');
+  }
+
+  function hexToRgb(hex) {
+    if (hex.startsWith('var(')) return '0,245,160';
+    hex = hex.replace('#','');
+    const r = parseInt(hex.substring(0,2),16), g = parseInt(hex.substring(2,4),16), b = parseInt(hex.substring(4,6),16);
+    return `${r},${g},${b}`;
+  }
+
+  function togglePassVis(id, btn) {
+    const inp = document.getElementById(id);
+    if (inp.type === 'password') { inp.type = 'text'; btn.textContent = '🙈'; }
+    else { inp.type = 'password'; btn.textContent = '👁️'; }
+  }
+
+  function checkPassStrength(val) {
+    const fill = document.getElementById('passStrengthFill');
+    const label = document.getElementById('passStrengthLabel');
+    if (!val) { fill.style.width='0'; label.textContent=''; return; }
+    let score = 0;
+    if (val.length >= 8) score++;
+    if (/[A-Z]/.test(val)) score++;
+    if (/[0-9]/.test(val)) score++;
+    if (/[^A-Za-z0-9]/.test(val)) score++;
+    const levels = [
+      { w:'25%', color:'#ff4757', text:'⚠️ Muy débil' },
+      { w:'50%', color:'#ff6b35', text:'🟠 Débil' },
+      { w:'75%', color:'#ffd32a', text:'🟡 Moderada' },
+      { w:'100%', color:'#00f5a0', text:'🟢 Fuerte' },
+    ];
+    const l = levels[score - 1] || levels[0];
+    fill.style.width = l.w;
+    fill.style.background = l.color;
+    label.textContent = l.text;
+    label.style.color = l.color;
+  }
+
+  function changeUsername() {
+    if (!isAdmin) { showToast('🚫 Solo el administrador puede cambiar el usuario'); return; }
+    const newName = document.getElementById('cfgNewUsername').value.trim();
+    if (!newName) { showToast('⚠️ Escribe un nuevo nombre de usuario'); return; }
+    if (newName.length < 3) { showToast('⚠️ El usuario debe tener mínimo 3 caracteres'); return; }
+    adminUser = newName;
+    document.getElementById('cfgNewUsername').value = '';
+    document.getElementById('userNameSide').textContent = newName;
+    document.getElementById('settingsUserName').textContent = newName;
+    showToast('✅ Usuario cambiado a: ' + newName);
+  }
+
+  function changePassword() {
+    const cur = document.getElementById('cfgCurrentPass').value;
+    const nw = document.getElementById('cfgNewPass').value;
+    const conf = document.getElementById('cfgConfirmPass').value;
+    if (!cur) { showToast('⚠️ Ingresa tu contraseña actual'); return; }
+    // Verify current password is correct
+    if (isAdmin && cur !== adminPass) { showToast('❌ La contraseña actual es incorrecta'); return; }
+    if (nw.length < 8) { showToast('⚠️ La nueva contraseña debe tener mín. 8 caracteres'); return; }
+    if (nw !== conf) { showToast('❌ Las contraseñas no coinciden'); return; }
+    // Actually update the credentials
+    if (isAdmin) adminPass = nw;
+    document.getElementById('cfgCurrentPass').value = '';
+    document.getElementById('cfgNewPass').value = '';
+    document.getElementById('cfgConfirmPass').value = '';
+    document.getElementById('passStrengthFill').style.width = '0';
+    document.getElementById('passStrengthLabel').textContent = '';
+    saveToStorage();
+    showToast('🔐 Contraseña actualizada correctamente');
+  }
+
+  const notifSettings = [
+    { id:'notif_msg', label:'Mensajes directos', icon:'💬', on:true },
+    { id:'notif_mention', label:'Menciones', icon:'@', on:true },
+    { id:'notif_voice', label:'Invitaciones de voz', icon:'🎙️', on:true },
+    { id:'notif_server', label:'Actividad del servidor', icon:'🔔', on:false },
+    { id:'notif_sounds', label:'Sonidos', icon:'🔊', on:true },
+  ];
+
+  const privacySettings = [
+    { id:'priv_dm', label:'Permitir DMs de desconocidos', icon:'✉️', on:false },
+    { id:'priv_status', label:'Mostrar estado en línea', icon:'🟢', on:true },
+    { id:'priv_activity', label:'Mostrar actividad de juego', icon:'🎮', on:true },
+    { id:'priv_read', label:'Confirmación de lectura', icon:'👁️', on:true },
+  ];
+
+  function renderToggles() {
+    renderToggleGroup('notifToggles', notifSettings);
+    renderToggleGroup('privacyToggles', privacySettings);
+  }
+
+  function renderToggleGroup(containerId, settings) {
+    const container = document.getElementById(containerId);
+    container.innerHTML = settings.map((s, i) => `
+      <div style="display:flex;align-items:center;gap:12px;padding:12px 0;${i<settings.length-1?'border-bottom:1px solid rgba(42,51,71,0.5);':''}">
+        <span style="font-size:1rem;width:24px;text-align:center;">${s.icon}</span>
+        <span style="flex:1;font-size:0.88rem;font-weight:600;color:var(--text-secondary);">${s.label}</span>
+        <div onclick="toggleSetting(this,'${s.id}')" data-on="${s.on}" style="width:44px;height:24px;border-radius:12px;background:${s.on?'var(--accent)':'var(--border)'};cursor:pointer;position:relative;transition:background 0.25s;">
+          <div style="position:absolute;top:3px;${s.on?'right:3px':'left:3px'};width:18px;height:18px;border-radius:50%;background:white;transition:all 0.25s;box-shadow:0 1px 4px rgba(0,0,0,0.3);"></div>
+        </div>
+      </div>
+    `).join('');
+  }
+
+  function toggleSetting(el, id) {
+    const isOn = el.dataset.on === 'true';
+    el.dataset.on = !isOn;
+    el.style.background = !isOn ? 'var(--accent)' : 'var(--border)';
+    const knob = el.querySelector('div');
+    knob.style.right = !isOn ? '3px' : '';
+    knob.style.left = !isOn ? '' : '3px';
+    showToast(!isOn ? '✅ Activado' : '🔕 Desactivado');
+  }
+
+  function setActiveNav(btn, tab) {
+    document.querySelectorAll('.nav-tab').forEach(t => t.classList.remove('active'));
+    btn.classList.add('active');
+  }
+
+  let toastTimeout;
+  function showToast(msg) {
+    const toast = document.getElementById('toast');
+    toast.textContent = msg;
+    toast.classList.add('show');
+    clearTimeout(toastTimeout);
+    toastTimeout = setTimeout(() => toast.classList.remove('show'), 2800);
+  }
+</script>
+
+  <!-- PWA INSTALL BANNER -->
+  <style>
+    #installBanner {
+      position: fixed; bottom: 0; left: 0; right: 0;
+      background: linear-gradient(135deg, #1a1f2e, #151821);
+      border-top: 1px solid #2a3347;
+      padding: 14px 20px;
+      display: flex; align-items: center; gap: 14px;
+      z-index: 9999;
+      box-shadow: 0 -10px 40px rgba(0,245,160,0.15);
+      transform: translateY(100%);
+      transition: transform 0.4s cubic-bezier(0.34,1.56,0.64,1);
+    }
+    #installBanner.visible { transform: translateY(0); }
+    #installBanner .ib-icon {
+      width: 48px; height: 48px; border-radius: 12px;
+      background: linear-gradient(135deg, #00f5a0, #00d4ff);
+      display: flex; align-items: center; justify-content: center;
+      font-family: 'Orbitron', monospace; font-size: 0.65rem;
+      font-weight: 900; color: #0a0b0f; letter-spacing: 0;
+      flex-shrink: 0;
+    }
+    #installBanner .ib-text { flex: 1; }
+    #installBanner .ib-title {
+      font-family: 'Orbitron', monospace; font-size: 0.8rem;
+      font-weight: 700; color: #e8eaf0; letter-spacing: 1px;
+    }
+    #installBanner .ib-sub {
+      font-size: 0.72rem; color: #8892a4; margin-top: 2px;
+    }
+    #installBanner .ib-btn {
+      padding: 9px 18px;
+      background: linear-gradient(135deg, #00f5a0, #00d4ff);
+      border: none; border-radius: 10px;
+      font-family: 'Orbitron', monospace; font-size: 0.7rem;
+      font-weight: 700; color: #0a0b0f; letter-spacing: 1px;
+      cursor: pointer; white-space: nowrap;
+      transition: all 0.2s;
+    }
+    #installBanner .ib-btn:hover { transform: scale(1.05); }
+    #installBanner .ib-close {
+      background: none; border: none; color: #4a5568;
+      font-size: 1.1rem; cursor: pointer; padding: 4px;
+    }
+    /* iOS install guide modal */
+    #iosGuide {
+      display: none; position: fixed; inset: 0;
+      background: rgba(0,0,0,0.85); backdrop-filter: blur(8px);
+      z-index: 10000; align-items: flex-end; justify-content: center;
+    }
+    #iosGuide.show { display: flex; }
+    #iosGuide .guide-sheet {
+      background: #1a1f2e; border-radius: 24px 24px 0 0;
+      border: 1px solid #2a3347; border-bottom: none;
+      padding: 24px 24px 40px; width: 100%; max-width: 500px;
+    }
+    #iosGuide .guide-handle {
+      width: 40px; height: 4px; background: #2a3347;
+      border-radius: 2px; margin: 0 auto 20px;
+    }
+    .guide-step {
+      display: flex; align-items: center; gap: 14px;
+      padding: 12px 0; border-bottom: 1px solid rgba(42,51,71,0.5);
+    }
+    .guide-step:last-child { border-bottom: none; }
+    .step-num {
+      width: 30px; height: 30px; border-radius: 50%;
+      background: linear-gradient(135deg, #00f5a0, #00d4ff);
+      display: flex; align-items: center; justify-content: center;
+      font-family: 'Orbitron', monospace; font-size: 0.75rem;
+      font-weight: 700; color: #0a0b0f; flex-shrink: 0;
+    }
+    .step-text { font-size: 0.88rem; color: #8892a4; line-height: 1.4; }
+    .step-text strong { color: #e8eaf0; }
+  </style>
+
+  <div id="installBanner">
+    <div class="ib-icon">GC</div>
+    <div class="ib-text">
+      <div class="ib-title">GamersCom</div>
+      <div class="ib-sub">Instala la app gratis en tu celular 📲</div>
+    </div>
+    <button class="ib-btn" id="installBtn" onclick="handleInstall()">INSTALAR</button>
+    <button class="ib-close" onclick="dismissBanner()">✕</button>
+  </div>
+
+  <!-- iOS guide -->
+  <div id="iosGuide" onclick="if(event.target===this)document.getElementById('iosGuide').classList.remove('show')">
+    <div class="guide-sheet">
+      <div class="guide-handle"></div>
+      <div style="font-family:'Orbitron',monospace;font-size:0.95rem;font-weight:700;color:#e8eaf0;text-align:center;margin-bottom:18px;letter-spacing:1px;">
+        📲 INSTALAR EN iPhone / iPad
+      </div>
+      <div class="guide-step">
+        <div class="step-num">1</div>
+        <div class="step-text">Toca el botón <strong>Compartir</strong> (📤) en la barra inferior de Safari</div>
+      </div>
+      <div class="guide-step">
+        <div class="step-num">2</div>
+        <div class="step-text">Desplázate y selecciona <strong>"Agregar a pantalla de inicio"</strong></div>
+      </div>
+      <div class="guide-step">
+        <div class="step-num">3</div>
+        <div class="step-text">Toca <strong>"Agregar"</strong> en la esquina superior derecha</div>
+      </div>
+      <div class="guide-step">
+        <div class="step-num">4</div>
+        <div class="step-text">¡Listo! Abre <strong>GamersCom</strong> desde tu pantalla de inicio 🎮</div>
+      </div>
+      <button onclick="document.getElementById('iosGuide').classList.remove('show')" style="width:100%;margin-top:20px;padding:14px;background:linear-gradient(135deg,#00f5a0,#00d4ff);border:none;border-radius:12px;font-family:'Orbitron',monospace;font-size:0.8rem;font-weight:700;color:#0a0b0f;letter-spacing:1.5px;cursor:pointer;">¡ENTENDIDO!</button>
+    </div>
+  </div>
+
+  <script>
+    // PWA Service Worker
+    if ('serviceWorker' in navigator) {
+      // Limpiar caché viejo y registrar nuevo SW
+      caches.keys().then(keys => keys.forEach(key => caches.delete(key)));
+      navigator.serviceWorker.register('./sw.js?v=6')
+        .then(reg => {
+          // Revisar actualizaciones cada vez que se abre la app
+          reg.update();
+          reg.addEventListener('updatefound', () => {
+            const newSW = reg.installing;
+            newSW.addEventListener('statechange', () => {
+              if (newSW.state === 'installed' && navigator.serviceWorker.controller) {
+                // Hay una versión nueva — aplicar automáticamente
+                newSW.postMessage('skipWaiting');
+                window.location.reload();
+              }
+            });
+          });
+        }).catch(() => {});
+
+      // Recargar cuando el SW tome control
+      navigator.serviceWorker.addEventListener('controllerchange', () => {
+        window.location.reload();
+      });
+    }
+
+    let deferredPrompt = null;
+    const isIOS = /iphone|ipad|ipod/i.test(navigator.userAgent);
+    const isInStandalone = window.matchMedia('(display-mode: standalone)').matches || window.navigator.standalone;
+
+    window.addEventListener('beforeinstallprompt', (e) => {
+      e.preventDefault();
+      deferredPrompt = e;
+      setTimeout(() => showBanner(), 3000);
+    });
+
+    function showBanner() {
+      if (isInStandalone) return;
+      const banner = document.getElementById('installBanner');
+      banner.classList.add('visible');
+    }
+
+    function dismissBanner() {
+      document.getElementById('installBanner').classList.remove('visible');
+    }
+
+    async function handleInstall() {
+      if (isIOS) {
+        dismissBanner();
+        document.getElementById('iosGuide').classList.add('show');
+        return;
+      }
+      if (deferredPrompt) {
+        deferredPrompt.prompt();
+        const { outcome } = await deferredPrompt.userChoice;
+        deferredPrompt = null;
+        dismissBanner();
+        if (outcome === 'accepted') showToast('🎮 ¡GamersCom instalada exitosamente!');
+      } else {
+        dismissBanner();
+        document.getElementById('iosGuide').classList.add('show');
+      }
+    }
+
+    // Show banner on iOS after 3s
+    if (isIOS && !isInStandalone) {
+      setTimeout(showBanner, 3000);
+    }
+  <\/script>
+
+</body>
+</html>
