@@ -1,0 +1,60 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>404 — GamersCom</title>
+<link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400;700;900&family=Rajdhani:wght@400;600;700&display=swap" rel="stylesheet">
+<style>
+  * { margin:0; padding:0; box-sizing:border-box; }
+  body {
+    font-family:'Rajdhani',sans-serif;
+    background:#0a0b0f;
+    color:#e8eaf0;
+    min-height:100vh;
+    display:flex;
+    align-items:center;
+    justify-content:center;
+    flex-direction:column;
+    text-align:center;
+    padding:20px;
+  }
+  .glitch {
+    font-family:'Orbitron',monospace;
+    font-size:clamp(4rem,15vw,8rem);
+    font-weight:900;
+    background:linear-gradient(135deg,#00f5a0,#00d4ff);
+    -webkit-background-clip:text;
+    -webkit-text-fill-color:transparent;
+    letter-spacing:4px;
+    margin-bottom:8px;
+  }
+  h1 { font-family:'Orbitron',monospace; font-size:clamp(1rem,3vw,1.4rem); color:#8892a4; margin-bottom:20px; font-weight:400; }
+  p { font-size:1rem; color:#4a5568; max-width:400px; line-height:1.6; margin-bottom:32px; }
+  .btn {
+    padding:14px 32px;
+    background:linear-gradient(135deg,#00f5a0,#00d4ff);
+    border:none;
+    border-radius:12px;
+    color:#0a0b0f;
+    font-family:'Orbitron',monospace;
+    font-size:0.8rem;
+    font-weight:700;
+    cursor:pointer;
+    letter-spacing:1px;
+    text-decoration:none;
+    display:inline-block;
+    transition:transform 0.2s, box-shadow 0.2s;
+  }
+  .btn:hover { transform:translateY(-2px); box-shadow:0 8px 24px rgba(0,245,160,0.3); }
+  .emoji { font-size:4rem; margin-bottom:20px; }
+</style>
+</head>
+<body>
+  <div class="emoji">🎮</div>
+  <div class="glitch">404</div>
+  <h1>Página no encontrada</h1>
+  <p>Parece que este nivel no existe o fue eliminado. ¡Regresa al lobby principal!</p>
+  <a href="./index.html" class="btn">← VOLVER AL INICIO</a>
+</body>
+</html>
