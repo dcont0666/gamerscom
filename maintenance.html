@@ -1,0 +1,66 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Mantenimiento — GamersCom</title>
+<link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400;700;900&family=Rajdhani:wght@400;600;700&display=swap" rel="stylesheet">
+<style>
+  * { margin:0; padding:0; box-sizing:border-box; }
+  body {
+    font-family:'Rajdhani',sans-serif;
+    background:#0a0b0f;
+    color:#e8eaf0;
+    min-height:100vh;
+    display:flex;
+    align-items:center;
+    justify-content:center;
+    flex-direction:column;
+    text-align:center;
+    padding:20px;
+  }
+  .logo { font-family:'Orbitron',monospace; font-size:clamp(1.5rem,5vw,2.5rem); font-weight:900; background:linear-gradient(135deg,#00f5a0,#00d4ff); -webkit-background-clip:text; -webkit-text-fill-color:transparent; letter-spacing:2px; margin-bottom:8px; }
+  .gear { font-size:4rem; margin-bottom:20px; animation: spin 3s linear infinite; display:inline-block; }
+  @keyframes spin { from{transform:rotate(0deg)} to{transform:rotate(360deg)} }
+  h1 { font-family:'Orbitron',monospace; font-size:clamp(0.9rem,2.5vw,1.2rem); color:#8892a4; margin-bottom:16px; font-weight:400; letter-spacing:2px; }
+  p { font-size:0.95rem; color:#4a5568; max-width:420px; line-height:1.7; margin-bottom:24px; }
+  .eta { background:rgba(0,245,160,0.07); border:1px solid rgba(0,245,160,0.2); border-radius:12px; padding:14px 24px; margin-bottom:28px; }
+  .eta-label { font-size:0.72rem; color:#8892a4; font-family:'Orbitron',monospace; letter-spacing:1px; margin-bottom:4px; }
+  .eta-time { font-size:1.1rem; color:#00f5a0; font-weight:700; }
+  .social { display:flex; gap:12px; justify-content:center; flex-wrap:wrap; }
+  .social a { padding:10px 20px; background:rgba(255,255,255,0.04); border:1px solid #2a3347; border-radius:10px; color:#8892a4; text-decoration:none; font-size:0.82rem; transition:all 0.2s; }
+  .social a:hover { border-color:#00f5a0; color:#00f5a0; }
+  .status-bar { position:fixed; bottom:0; left:0; right:0; background:rgba(0,245,160,0.05); border-top:1px solid rgba(0,245,160,0.1); padding:10px; text-align:center; font-size:0.72rem; color:#8892a4; font-family:'Orbitron',monospace; letter-spacing:1px; }
+</style>
+</head>
+<body>
+  <div class="logo">GamersCom</div>
+  <div class="gear">⚙️</div>
+  <h1>MANTENIMIENTO PROGRAMADO</h1>
+  <p>Estamos mejorando GamersCom para darte una mejor experiencia. El servicio estará de regreso muy pronto.</p>
+  <div class="eta">
+    <div class="eta-label">TIEMPO ESTIMADO</div>
+    <div class="eta-time" id="etaDisplay">Calculando...</div>
+  </div>
+  <div class="social">
+    <a href="mailto:soporte@gamerscom.app">📧 Contacto</a>
+    <a href="./index.html">🎮 Intentar de nuevo</a>
+  </div>
+  <div class="status-bar">🔧 SISTEMA EN MANTENIMIENTO · STATUS: TRABAJANDO</div>
+  <script>
+    // Auto-refresh every 2 minutes to check if maintenance is done
+    setTimeout(() => location.reload(), 2 * 60 * 1000);
+    // Simple countdown display
+    const etaEl = document.getElementById('etaDisplay');
+    let seconds = 30 * 60; // default 30 min estimate
+    const tick = () => {
+      if (seconds <= 0) { etaEl.textContent = 'Terminando pronto...'; return; }
+      const m = Math.floor(seconds / 60), s = seconds % 60;
+      etaEl.textContent = `~${m}:${String(s).padStart(2,'0')} minutos`;
+      seconds--;
+      setTimeout(tick, 1000);
+    };
+    tick();
+  </script>
+</body>
+</html>
